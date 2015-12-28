@@ -307,6 +307,9 @@ Store.Emails.find().filter(function(record){
 
 This document still not complete and lacks a few things.
 
+ * Write tests for all methods
+ * Add continues integration (Travis CI)
+ * Register on npm
  * Document all API
  * Create site
  * A main demo
