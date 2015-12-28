@@ -1,0 +1,24 @@
+{
+  "globals": {
+    "define": true,
+    "module": true,
+    "chrome": true,
+    "DEBUG": true
+  },
+
+  "asi": false,
+  "boss": true,
+  "browser": true,
+  "eqnull": true,
+  "immed": true,
+  "lastsemic": true,
+  "laxbreak": true,
+  "laxcomma": true,
+  "newcap": true,
+  "noarg": true,
+  "nomen": false,
+  "plusplus": false,
+  "sub": true,
+  "undef": true,
+  "white": false
+}
