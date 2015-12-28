@@ -321,9 +321,9 @@ Store.Emails.find().filter(function(record){
 
 This document still not complete and lacks a few things.
 
- * Make it work on Node -[]#1
- * Make it work on Chrome extension -[]#2
- * Make it work on Electron -[]#3
+ * Make it work on Node -[] #1
+ * Make it work on Chrome extension -[] #2
+ * Make it work on Electron -[] #3
  * Write tests for all methods
  * Add continues integration (Travis CI)
  * Register on npm
