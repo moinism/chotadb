@@ -168,6 +168,14 @@ __Bower__:
 bower install chotadb
 ````
 
+Then include in your file:
+
+
+````
+<script type="text/javascript" src="bower_components/chotadb/build/chotadb.min.js"></script>
+````
+
+
 In __NodeJS__:
 
 ````
