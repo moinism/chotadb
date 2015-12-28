@@ -126,6 +126,17 @@ ChotaDB supports method chaining, promises, synchronous as well as asynchronous 
 
 ChotaDB supports a set of that you can subscribe to.
 
+  * `error` : When there is an error execution of any command
+  * `created` : When a new collection is created
+  * `inserted` : When a new record is inserted into a collection
+  * `updated` : When a record is changed
+  * `removed` : When a record is removed from a collection
+  * `dropped` : When a collection is dropped/deleted
+
+More details about events can be read on API site.
+
+You can use the `on` method on `ChotaDB` instance to subscribe to any event.
+
 ```javascript
   var DB = ChotaDB();
 
@@ -171,7 +182,7 @@ For other web, Cordova & Chrome based projects simply <a href="https://raw.githu
 
 ### Usage
 
-Below is an quick overview of what can be done with ChotaDB. For more details, please read API docs.
+Below is an quick overview of what can be done with ChotaDB. For more details, please [read API docs](https://chotadb.moin.im/API/).
 
 Start with creating an instance of `ChotaDB`:
 
@@ -184,7 +195,7 @@ var Store = new ChotaDB();
 ````javascript
 var Emails = Store.create('Emails');
 ````
-If a collection already exists with the same name then it will be returned.
+If a collection already exists with the same name then its instance will be returned.
 
 Once a collection is created it becomes a `property` on `DB` instance. So in this case, you can also access it via `Store.Emails`.
 
@@ -223,7 +234,7 @@ It is different from MongoDB because MongoDB creates a 12 byte (24 hex character
 ##### Search records: <a name="search"></a>
 Each collections has a method `find` which can be used for searching.
 
-In this case, all the unread emails
+So for example we wanted to know the number of emails which are unread we'll do something like this:
 
 ````javascript
 Store.Emails.find({
@@ -232,8 +243,9 @@ Store.Emails.find({
   console.log('You have', total, 'unread emails.');
 });
 ````
+`find` will look for all the records having their `isRead` set to `false`.
 
-You can access all the records like:
+If we wanted to access all the emails, we'll call `find` without any object being to it.
 
 ````javascript
 Store.Emails.find().each(function(email){
@@ -242,7 +254,7 @@ Store.Emails.find().each(function(email){
 ````
 `each` iterates over all the records returned.
 
-Or the ones having `JS` tag
+If we wanted to find the ones having `JS` tag
 
 ````javascript
 Store.Emails.find({
@@ -265,7 +277,7 @@ Store.Emails.find({
 ##### Update records: <a name="update"></a>
 To update a record, `update` method can be chained to `find` to update all the records returned by `find`.
 
-In this case, we want all the unread emails to be marked as read
+So for example, we want all the unread emails to be marked as read
 
 ````javascript
 Store.Emails.find({
