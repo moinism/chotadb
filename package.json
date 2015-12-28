@@ -2,7 +2,7 @@
   "name": "chotadb",
   "version": "0.1.9",
   "description": "A wrapper over localStorage to provide MongoDB-like interface.",
-  "main": "build.js",
+  "main": "./build/chotadb.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,16 +10,27 @@
     "chota",
     "db",
     "local",
-    "storage"
+    "storage",
+    "nosql",
+    "clientside",
+    "html5"
   ],
-  "author": "Moin Uddin",
+  "author": "Moin Uddin <me@moin.im> (https://moin.im)",
   "license": "MIT",
   "devDependencies": {
-    "grunt": "*",
-    "grunt-contrib-concat": "^0.5.1",
+    "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-qunit": "^0.7.0",
     "grunt-contrib-uglify": "^0.11.0",
-    "intern": "*"
-  }
+    "intern": "^3.0.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moinism/chotadb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/moinism/chotadb/issues"
+  },
+  "homepage": "https://chotadb.moin.im"
 }
