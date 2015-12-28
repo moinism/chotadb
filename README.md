@@ -120,6 +120,29 @@ All the data will be returned as `array` of `objects`. Like:
 
 ChotaDB supports method chaining, promises, synchronous as well as asynchronous execution for some methods.
 
+### Events
+
+ChotaDB supports a set of that you can subscribe to.
+
+```javascript
+  var DB = ChotaDB();
+
+  DB.on('error', function(err) {
+    console.error(err);
+  }).on('created', function(res) {
+    console.log(res);
+  }).on('inserted', function(res) {
+    console.log(res);
+  }).on('updated', function(res) {
+    console.log(res);
+  }).on('removed', function(res) {
+    console.log(res);
+  }).on('dropped', function(res) {
+    console.log(res);
+  });
+```
+
+
 ## How to use it
 
 ### Installation
