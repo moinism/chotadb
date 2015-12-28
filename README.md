@@ -24,7 +24,7 @@ Nice, eh!
 
 #### Why over localStorage?
 
-`localStorage` is massively supported in browsers and devices currently being used and has a storage capacity [ranging from 2MB to 10MB](http://www.html5rocks.com/en/tutorials/offline/quota-research/). So why not use it in more powerful way!
+`localStorage` is massively supported in browsers and devices currently being used and has a storage capacity <a href="http://www.html5rocks.com/en/tutorials/offline/quota-research/" target="_blank">ranging from 2MB to 10MB</a>. So why not use it in more powerful way!
 
 ### Why use it?
 
@@ -61,7 +61,7 @@ As this library depends upon the availablity of `localStorage` so wherever you c
 
 Fortunately for us, `localStorage` is supported on a wide array of devices and browsers.
 
-It has been [supported in browsers](https://developer.mozilla.org/en/docs/Web/API/Window/localStorage#Browser_compatibility) since:
+It has been <a href="https://developer.mozilla.org/en/docs/Web/API/Window/localStorage#Browser_compatibility" target="_blank">supported in browsers</a> since:
 
   * Chrome 4
   * FireFox 3.5
@@ -74,7 +74,7 @@ In addition to these browsers, ChotaDB is also supported in:
   * NodeJS
   * Chrome Extensions/Apps
   * __Cordova__ (yay!) :sparkles:
-  * [Electron](http://electron.atom.io/)
+  * <a href="http://electron.atom.io/" target="_blank">Electron</a>
 
 
 ## Concepts
@@ -163,7 +163,7 @@ In __NodeJS__:
 npm install chotadb
 ````
 
-For other web, Cordova & Chrome based projects simply [download](https://raw.githubusercontent.com/moinism/chotadb/master/build/chotadb.min.js) and include the file in your pages:
+For other web, Cordova & Chrome based projects simply <a href="https://raw.githubusercontent.com/moinism/chotadb/master/build/chotadb.min.js" target="_blank">download</a> and include the file in your pages:
 
 ````
 <script src="chotadb.min.js"></script>
