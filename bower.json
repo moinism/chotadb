@@ -1,0 +1,26 @@
+{
+  "name": "chotadb",
+  "version": "0.1.9",
+  "homepage": "https://chotadb.moin.im",
+  "authors": [
+    "Moin Uddin <me@moin.im>"
+  ],
+  "description": "A wrapper over localStorage to provide MongoDB-like No-SQL interface.",
+  "main": "./build/chotadb.min.js",
+  "keywords": [
+    "chota",
+    "db",
+    "nosql",
+    "localstorage",
+    "html5",
+    "database"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
