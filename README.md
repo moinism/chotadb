@@ -164,27 +164,33 @@ Install it via package managers:
 
 __Bower__:
 
-````
+````bash
 bower install chotadb
 ````
 
 Then include in your file:
 
 
-````
+````html
 <script type="text/javascript" src="bower_components/chotadb/build/chotadb.min.js"></script>
 ````
 
 
 In __NodeJS__:
 
-````
+````bash
 npm install chotadb
+````
+
+Then require it like:
+
+````javascript
+var ChotaDB = require('chotadb');
 ````
 
 For other web, Cordova & Chrome based projects simply <a href="https://raw.githubusercontent.com/moinism/chotadb/master/build/chotadb.min.js" target="_blank">download</a> and include the file in your pages:
 
-````
+````html
 <script src="chotadb.min.js"></script>
 ````
 
