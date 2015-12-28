@@ -38,8 +38,10 @@ Nice, eh!
 
 ## Docs
 
-* [Support/Compatibility](#support-compatibility)
+* [Support/Compatibility](#supportcompatibility)
 * [Concepts](#concepts)
+  * [Storing](#storing)
+  * [Accessing](#accessing)
 * [How to use it](#how-to-use-it)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -92,7 +94,7 @@ For example:
 
 If you insert one record as:
 
-````
+````javascript
 DB.Users.insert({
   name: 'Moin'
 });
@@ -100,7 +102,7 @@ DB.Users.insert({
 
 And second one as:
 
-````
+````javascript
 DB.Users.insert({
   first_name: 'Moin',
   age: 20
@@ -149,13 +151,13 @@ Below is an quick overview of what can be done with ChotaDB. For more details, p
 
 Start with creating an instance of `ChotaDB`:
 
-````
+````javascript
 var Store = new ChotaDB();
 ````
 
 ##### Create a new collection (same as table in SQL): <a name="create"></a>
 
-````
+````javascript
 var Emails = Store.create('Emails');
 ````
 If a collection already exists with the same name then it will be returned.
@@ -164,7 +166,7 @@ Once a collection is created it becomes a `property` on `DB` instance. So in thi
 
 ##### Insert a record: <a name="insert"></a>
 
-````
+````javascript
 Store.Emails.insert({
   title: 'Re: New DB for client-side data',
   from: 'me@moin.im',
@@ -178,7 +180,7 @@ Store.Emails.insert({
 
 Data inserted into the collection would look something like this:
 
-````
+````javascript
 {
   _id: 1
   title: "Re: New DB for client-side data",
@@ -199,7 +201,7 @@ Each collections has a method `find` which can be used for searching.
 
 In this case, all the unread emails
 
-````
+````javascript
 Store.Emails.find({
   isRead: false
 }).count(function(total){
@@ -209,7 +211,7 @@ Store.Emails.find({
 
 You can access all the records like:
 
-````
+````javascript
 Store.Emails.find().each(function(email){
   console.log('Email:', email.title);
 });
@@ -218,7 +220,7 @@ Store.Emails.find().each(function(email){
 
 Or the ones having `JS` tag
 
-````
+````javascript
 Store.Emails.find({
   tags: 'JS'
 }).each(function(email){
@@ -228,7 +230,7 @@ Store.Emails.find({
 
 Or the ones having both `Personal` & `JS` tags.
 
-````
+````javascript
 Store.Emails.find({
   tags: ['Personal', 'JS']
 }).each(function(email){
@@ -241,7 +243,7 @@ To update a record, `update` method can be chained to `find` to update all the r
 
 In this case, we want all the unread emails to be marked as read
 
-````
+````javascript
 Store.Emails.find({
   isRead: false
 }).update({
@@ -254,7 +256,7 @@ Store.Emails.find({
 ##### Remove records: <a name="remove"></a>
 Let's delete all the emails older than a month.
 
-````
+````javascript
 var nowTime = Date.now();
 Store.Emails.find().filter(function(record){
   if( nowTime - record.time >= 2678400000) // 31 days
