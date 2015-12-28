@@ -16,7 +16,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %>.js v<%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> */\n' + grunt.file.read('LICENSE')
+        banner: '/*! <%= pkg.name %>.js v<%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> */\n'
       },
       build: {
         src: 'src/<%= pkg.name %>.js',

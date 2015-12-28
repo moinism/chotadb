@@ -1,3 +1,5 @@
+> This is an initial release to GitHub. Please do not use it yet.
+
 # ChotaDB
 
 > A wrapper over `window.localStorage` to use it as No-SQL DB.
@@ -39,6 +41,15 @@ Nice, eh!
 * [Support/Compatibility](#support-compatibility)
 * [Concepts](#concepts)
 * [How to use it](#how-to-use-it)
+  * [Installation](#installation)
+  * [Usage](#usage)
+    * [Create a new collection (same as table in SQL)](#create)
+    * [Insert a record](#insert)
+    * [Search records](#search)
+    * [Update records](#update)
+    * [Remove records](#remove)
+* [Resources](#resources)
+
 
 ## Support/Compatibility
 
@@ -62,6 +73,7 @@ In addition to these browsers, ChotaDB is also supported in:
   * [Electron](http://electron.atom.io/)
 
 
+
 ## Concepts
 
 ChotaDB tries to folow the same concepts used in MongoDB. Similar to Mongo, you can create collections (known as tables in SQL) to store data.
@@ -82,7 +94,7 @@ If you insert one record as:
 
 ````
 DB.Users.insert({
-	name: 'Moin'
+  name: 'Moin'
 });
 ````
 
@@ -90,8 +102,8 @@ And second one as:
 
 ````
 DB.Users.insert({
-	first_name: 'Moin',
-	age: 20
+  first_name: 'Moin',
+  age: 20
 });
 ````
 
@@ -133,13 +145,15 @@ For other web, Cordova & Chrome based projects simply download and include the f
 
 ### Usage
 
-Create an instance of `ChotaDB`:
+Below is an quick overview of what can be done with ChotaDB. For more details, please read API docs.
+
+Start with creating an instance of `ChotaDB`:
 
 ````
 var Store = new ChotaDB();
 ````
 
-Create a new collection (same as table in SQL):
+##### Create a new collection (same as table in SQL): <a name="create"></a>
 
 ````
 var Emails = Store.create('Emails');
@@ -148,12 +162,13 @@ If a collection already exists with the same name then it will be returned.
 
 Once a collection is created it becomes a `property` on `DB` instance. So in this case, you can also access it via `Store.Emails`.
 
-Insert a record:
+##### Insert a record: <a name="insert"></a>
 
 ````
 Store.Emails.insert({
   title: 'Re: New DB for client-side data',
   from: 'me@moin.im',
+  tags: ['Personal','JS','Client-side'],
   time: Date.now(),
   isRead: false
 }).then(function(){
@@ -161,7 +176,26 @@ Store.Emails.insert({
 });
 ````
 
-Search records:
+Data inserted into the collection would look something like this:
+
+````
+{
+  _id: 1
+  title: "Re: New DB for client-side data",
+  from: "me@moin.im",
+  tags: ['Personal','JS','Client-side'],
+  time: 1451302067412,
+  isRead: false
+}
+````
+
+Notice the extra `_id` key. It is a reserved key name and is used by ChotaDB to take care of unique and auto-incrementing ID for records in a collection.
+It is different from MongoDB because MongoDB creates a 12 byte (24 hex characters) string for `_id` but ChotaDB creates an integer.
+
+> You cannot set or change the `_id`. It will be overwritten even if you changed. Use any other key name like `id` if you have to.
+
+##### Search records: <a name="search"></a>
+Each collections has a method `find` which can be used for searching.
 
 In this case, all the unread emails
 
@@ -173,9 +207,39 @@ Store.Emails.find({
 });
 ````
 
-Update records:
+You can access all the records like:
 
-In this case, all the unread emails should be marked as read
+````
+Store.Emails.find().each(function(email){
+  console.log('Email:', email.title);
+});
+````
+`each` iterates over all the records returned.
+
+Or the ones having `JS` tag
+
+````
+Store.Emails.find({
+  tags: 'JS'
+}).each(function(email){
+  console.log('JS Email:', email.title);
+});
+````
+
+Or the ones having both `Personal` & `JS` tags.
+
+````
+Store.Emails.find({
+  tags: ['Personal', 'JS']
+}).each(function(email){
+  console.log('Personal JS Email:', email.title);
+});
+````
+
+##### Update records: <a name="update"></a>
+To update a record, `update` method can be chained to `find` to update all the records returned by `find`.
+
+In this case, we want all the unread emails to be marked as read
 
 ````
 Store.Emails.find({
@@ -183,6 +247,25 @@ Store.Emails.find({
 }).update({
   isRead: true
 }).then(function(){
-  console.log('You have do not have any unread emails.');
+  console.log('All the emails are marked as read.');
 });
 ````
+
+##### Remove records: <a name="remove"></a>
+Let's delete all the emails older than a month.
+
+````
+var nowTime = Date.now();
+Store.Emails.find().filter(function(record){
+  if( nowTime - record.time >= 2678400000) // 31 days
+    return true; // we want to keep this record for next method i.e: remove
+})
+.remove() // remove the ones we filtered
+.then(function(){
+  console.log('You do not have any emails older than a month.');
+});
+````
+
+### Resources
+
+For further reading and a deeper look into how to use ChotaDB, please read [API docs](https://chotadb.moin.im/).
