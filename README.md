@@ -9,7 +9,7 @@ ChotaDB provides a simple and elegant API to interface with `localStorage`. `loc
 #### Quick look:
 ChotaDB provide methods for complete CRUDS operations.
 
-````
+````javascript
 var DB = ChotaDB();
 
 DB.create('Users')
@@ -71,9 +71,8 @@ In addition to these browsers, ChotaDB is also supported in:
 
   * NodeJS
   * Chrome Extensions/Apps
-  * __Cordova__ (yay!)
+  * __Cordova__ (yay!) :sparkles:
   * [Electron](http://electron.atom.io/)
-
 
 
 ## Concepts
