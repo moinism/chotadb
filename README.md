@@ -42,6 +42,7 @@ Nice, eh!
 * [Concepts](#concepts)
   * [Storing](#storing)
   * [Accessing](#accessing)
+  * [Events](#events)
 * [How to use it](#how-to-use-it)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -50,6 +51,7 @@ Nice, eh!
     * [Search records](#search)
     * [Update records](#update)
     * [Remove records](#remove)
+* [To do](#to-do)
 * [Resources](#resources)
 
 
@@ -161,7 +163,7 @@ In __NodeJS__:
 npm install chotadb
 ````
 
-For other web, Cordova & Chrome based projects simply download and include the file in your pages:
+For other web, Cordova & Chrome based projects simply [download](https://raw.githubusercontent.com/moinism/chotadb/master/build/chotadb.min.js) and include the file in your pages:
 
 ````
 <script src="chotadb.min.js"></script>
@@ -289,6 +291,14 @@ Store.Emails.find().filter(function(record){
   console.log('You do not have any emails older than a month.');
 });
 ````
+# To do
+
+This document still not complete and lacks a few things.
+
+ * Document all API
+ * Create site
+ * A main demo
+ * Provide more examples
 
 ### Resources
 
