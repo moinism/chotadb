@@ -259,7 +259,7 @@ Store.Emails.find({
 ````
 `find` will look for all the records having their `isRead` set to `false`.
 
-If we wanted to access all the emails, we'll call `find` without any object being to it.
+If we wanted to access all the emails, we'll call `find` without any search criteria (`object`) being passed to it.
 
 ````javascript
 Store.Emails.find().each(function(email){
@@ -326,7 +326,7 @@ This document still not complete and lacks a few things.
  - [ ] Make it work on Electron #3
  - [ ] Write tests for all methods
  - [ ] Add continues integration (Travis CI)
- - [ ] Register on npm
+ - [x] Register on npm
  - [ ] Document all API
  - [ ] Create site
  - [ ] A main demo
