@@ -1,6 +1,6 @@
 {
   "name": "chotadb",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "A wrapper over localStorage to provide MongoDB-like interface.",
   "main": "./build/chotadb.min.js",
   "scripts": {
@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/moinism/chotadb/issues"
   },
-  "homepage": "https://chotadb.moin.im"
+  "homepage": "https://chotadb.moin.im",
+  "dependencies": {
+    "node-persist": "0.0.8"
+  }
 }

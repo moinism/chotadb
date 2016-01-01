@@ -8,6 +8,7 @@
       _events   = [], // events and callback store
       _opts     = {}, // config object passed to constructor
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
+      _SEPERATOR = '/',
       _chotaObj = { // to be returned
           SORT: {
             ASC: 1,
@@ -18,12 +19,7 @@
           on: _on
       },
       _chota    = function(opts) { // constructor
-        opts = opts || {};
-        if(opts.chrome) {
-          _storage = (opts.chrome == 'local' || opts.chrome == 'sync') ? chrome.storage[opts.chrome] : chrome.storage.local;
-          _opts.isChrome = true;
-        }
-
+        opts = opts || {}; // not using it. just future-proofing
         return _chotaObj;
       };
 
@@ -83,16 +79,7 @@
   /* End polyfills */
 
   function _resolveName (colName, type) {
-    return 'ChotaDB' + (type ? '/' + type : '') + '/' + colName;
-  }
-
-  function _getData (colName) {
-    return JSON.parse( _global.localStorage[colName] );
-  }
-
-  function _setData (colName, data) {
-    _global.localStorage[colName] = JSON.stringify( data );
-    return data;
+    return 'ChotaDB' + (type ? _SEPERATOR + type : '') + _SEPERATOR + colName;
   }
 
   function _on (event, callback) {
@@ -157,7 +144,7 @@
 
     delete _meta[name];
     delete _chotaObj[name];
-    _global.localStorage.removeItem( _resolveName(name, 'Data') );
+    _removeData( _resolveName(name, 'Data') );
     _updateMeta();
     _trigger('dropped', {
       collection: name
@@ -171,11 +158,18 @@
 
   function _sort (data, options) {
 
-    var _key = Object.keys(options)[0];
-        options = {
+    if( (options === 1 || options === -1) ) {
+      options = {
+        key: '_id',
+        type: options
+      };
+    } else if(typeof options === 'object') {
+      var _key = Object.keys(options)[0];
+      options = {
           key: _key,
           type: options[_key]
-        };
+      };
+  }
 
     return data.sort(function (a,b) {
       if (a[options.key] < b[options.key])
@@ -266,8 +260,8 @@
         // when {}, null or nothing is passed to find
         if(!search || search === null || (search !== null && typeof search == 'object' && _count(search) === 0) ) {
           // do nothing as all the data is in _c
-          _c = _applyOpts(_d, options);
 
+          _c = _applyOpts(_d, options);
           return this;
         } else {
           // reduce _c to only searched data
@@ -295,6 +289,9 @@
         }
       },
       update: function(newData) {
+
+        if(!newData || typeof newData !== 'object')
+          return;
 
         var affected = 0;
 
@@ -379,8 +376,22 @@
 
         return this;
       },
+      first: function(f) {
+        if(f && typeof f == 'function') {
+          f.call( null, [_c[0]] );
+          return this;
+        } else
+          return [_c[0]];
+      },
+      last: function(f) {
+        if(f && typeof f == 'function') {
+          f.call( null, [_c[ _c.length -1 ]] );
+          return this;
+        } else
+          return [_c[ _c.length -1 ]];
+      },
       sort: function(options) {
-        _c = _sort(_c, ((options == 1 || options == -1) ? { _id: options } : options));
+        _c = _sort(_c, options);
         return this;
       },
       skip: function(n) {
@@ -393,7 +404,7 @@
       },
       count: function(f) {
         if(f && typeof f == 'function') {
-          f.call( _count(_c) );
+          f.call( null, _count(_c) );
           return this;
         } else
           return _count(_c);
@@ -408,7 +419,7 @@
       },
       get: function(f) {
         if(f && typeof f == 'function') {
-          f.call(_c);
+          f.call(null, _c);
           return this;
         } else
           return _c;
@@ -421,7 +432,40 @@
     return _methods;
   }
 
-    if( _global.localStorage[_resolveName('Meta')] === undefined ) {
+  var _getData
+  , _setData
+  , _removeData = null;
+
+  function _initSorage (env) {
+    _storage = env;
+    // if(env) {
+    //  switch env {
+    //    case 'node':
+
+    //      break;
+    //    case 'chrome':
+
+    //      break;
+    //  }
+    // } else {
+        _getData = function (colName) {
+        return JSON.parse( _storage.getItem(colName) );
+      };
+
+      _setData = function (colName, data) {
+        _storage.setItem(colName, JSON.stringify( data ) );
+        return data;
+      };
+
+      _removeData = function (colName) {
+        _storage.removeItem( colName );
+      };
+    // }
+    _initData();
+  }
+
+  function _initData () {
+    if( _storage.getItem( _resolveName('Meta') ) === undefined ) {
         _init(
           _setData(_resolveName('Meta'), {})
         );
@@ -430,11 +474,24 @@
         _getData(_resolveName('Meta'))
       );
     }
+  }
 
-  // NodeJS support
+  // CommonJS (NodeJS) support
   if(typeof module === "object" && module && typeof module.exports === "object") {  
-    module.exports.ChotaDB = _chota;
-  } else {
+    _SEPERATOR = '-';
+    var _s = require('node-persist');
+  _s.initSync({
+    dir: process.env.PWD + '/ChotaData',
+    stringify: function(d) { return d; },
+    parse: function(d) { return d; }
+  });
+    _initSorage( _s );
+    module.exports = _chota;
+    _s = null;
+  } else if (_global.chrome && chrome.runtime && chrome.runtime.id){ // For Chrome extension envoirnment. : http://stackoverflow.com/a/22563123/1227747
+    _initSorage();
+  } else if( _global.localStorage ) {
+    _initSorage( _global.localStorage );
     // expose to window
     _global.ChotaDB = _chota;
 

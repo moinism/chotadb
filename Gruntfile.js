@@ -16,7 +16,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %>.js v<%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> */\n'
+        banner: '/*! \n <%= pkg.name %>.js v<%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> \n Available under MIT license. - https://github.com/moinism/chotadb \n*/\n'
       },
       build: {
         src: 'src/<%= pkg.name %>.js',
