@@ -41,7 +41,7 @@
       }
       var O = Object(this);
       var len = O.length >>> 0;
-      if (typeof callback !== "function") {
+      if (typeof callback !== 'function') {
         throw new TypeError(callback + ' is not a function');
       }
       if (arguments.length > 1) {
@@ -438,29 +438,20 @@
 
   function _initSorage (env) {
     _storage = env;
-    // if(env) {
-    //  switch env {
-    //    case 'node':
 
-    //      break;
-    //    case 'chrome':
-
-    //      break;
-    //  }
-    // } else {
-        _getData = function (colName) {
+      _getData = function (colName) {
         return JSON.parse( _storage.getItem(colName) );
       };
 
       _setData = function (colName, data) {
-        _storage.setItem(colName, JSON.stringify( data ) );
+        _storage.setItem( colName, JSON.stringify( data ) );
         return data;
       };
 
       _removeData = function (colName) {
         _storage.removeItem( colName );
       };
-    // }
+
     _initData();
   }
 
@@ -476,8 +467,8 @@
     }
   }
 
-  // CommonJS (NodeJS) support
-  if(typeof module === "object" && module && typeof module.exports === "object") {  
+  // NodeJS support
+  if(typeof module === 'object' && module && typeof module.exports === 'object') {  
     _SEPERATOR = '-';
     var _s = require('node-persist');
   _s.initSync({
@@ -496,8 +487,8 @@
     _global.ChotaDB = _chota;
 
     // AMD (RequireJS) support
-    if (typeof define === "function" && define.amd) {
-      define("ChotaDB", [], function() {
+    if (typeof define === 'function' && define.amd) {
+      define('ChotaDB', [], function() {
         return _chota;
       });
     }

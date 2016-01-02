@@ -46,11 +46,11 @@ Nice, eh!
 * [How to use it](#how-to-use-it)
   * [Installation](#installation)
   * [Usage](#usage)
-    * [Create a new collection (same as table in SQL)](#create)
-    * [Insert a record](#insert)
-    * [Search records](#search)
-    * [Update records](#update)
-    * [Remove records](#remove)
+    * [Create a new collection (same as table in SQL)](#create-a-new-collection-same-as-table-in-sql-)
+    * [Insert a record](#insert-a-record-)
+    * [Search records](#search-records-)
+    * [Update records](#update-records-)
+    * [Remove records](#remove-records-)
 * [To do](#to-do)
 * [Resources](#resources)
 
@@ -204,7 +204,7 @@ Start with creating an instance of `ChotaDB`:
 var Store = new ChotaDB();
 ````
 
-##### Create a new collection (same as table in SQL): <a name="create"></a>
+##### Create a new collection (same as table in SQL):
 
 ````javascript
 var Emails = Store.create('Emails');
@@ -213,7 +213,7 @@ If a collection already exists with the same name then its instance will be retu
 
 Once a collection is created it becomes a `property` on `DB` instance. So in this case, you can also access it via `Store.Emails`.
 
-##### Insert a record: <a name="insert"></a>
+##### Insert a record:
 
 ````javascript
 Store.Emails.insert({
@@ -231,7 +231,7 @@ Data inserted into the collection would look something like this:
 
 ````javascript
 {
-  _id: 1
+  _id: 1,
   title: "Re: New DB for client-side data",
   from: "me@moin.im",
   tags: ['Personal','JS','Client-side'],
@@ -243,9 +243,9 @@ Data inserted into the collection would look something like this:
 Notice the extra `_id` key. It is a reserved key name and is used by ChotaDB to take care of unique and auto-incrementing ID for records in a collection.
 It is different from MongoDB because MongoDB creates a 12 byte (24 hex characters) string for `_id` but ChotaDB creates an integer.
 
-> You cannot set or change the `_id`. It will be overwritten even if you changed. Use any other key name like `id` if you have to.
+> You cannot set or change the `_id`. It will be overwritten even if you did. Use any other key name like `id` if you have to.
 
-##### Search records: <a name="search"></a>
+##### Search records:
 Each collections has a method `find` which can be used for searching.
 
 So for example we wanted to know the number of emails which are unread we'll do something like this:
@@ -288,7 +288,7 @@ Store.Emails.find({
 });
 ````
 
-##### Update records: <a name="update"></a>
+##### Update records:
 To update a record, `update` method can be chained to `find` to update all the records returned by `find`.
 
 So for example, we want all the unread emails to be marked as read
@@ -303,7 +303,7 @@ Store.Emails.find({
 });
 ````
 
-##### Remove records: <a name="remove"></a>
+##### Remove records:
 Let's delete all the emails older than a month.
 
 ````javascript
@@ -319,7 +319,7 @@ Store.Emails.find().filter(function(record){
 ````
 # To do
 
-This document still not complete and lacks a few things.
+This library is still not complete and lacks a few things.
 
  - [x] Make it work on Node issue:#1
  - [ ] Make it work on Chrome extension issue:#2
