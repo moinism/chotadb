@@ -2,8 +2,6 @@
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  // grunt.loadNpmTasks('grunt-contrib-qunit');
-  // grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.initConfig({
@@ -16,7 +14,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '/*! \n <%= pkg.name %>.js v<%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> \n Available under MIT license. - https://github.com/moinism/chotadb \n*/\n'
+        banner: '/*! \n <%= pkg.name %>.js v<%= pkg.version %> generated on <%= grunt.template.today("dd-mm-yyyy HH:MM:ss") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> \n Available under MIT license. - <%= pkg.homepage %> \n*/\n'
       },
       build: {
         src: 'src/<%= pkg.name %>.js',
