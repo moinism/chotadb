@@ -10,24 +10,27 @@
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
       _SEPERATOR = '/',
       _chotaObj = { // to be returned
-          ALL: Infinity,
-          ANY: Infinity,
-          SORT: {
-            ASC: 1,
-            DSC: -1
-          },
-          create: _createCollection,
-          drop: _dropCollection,
-          each: _collectionIterator,
-          hasCollection: _isCollection,
-          on: _on
+        ALL: Infinity,
+        ANY: Infinity,
+        SORT: {
+          ASC: 1,
+          DSC: -1
+        },
+        create: _createCollection,
+        drop: _dropCollection,
+        each: _collectionIterator,
+        hasCollection: _isCollection,
+        match: RegExp,
+        on: _on,
+        repair: _repairDB,
+        select: _accessCollection,
       },
       _chota    = function(opts) { // constructor
         opts = opts || {}; // not using it. just future-proofing
         return _chotaObj;
       };
 
-  /* start polyfills */
+  /* start polyfills & utilities */
 
   // for < IE9 Array.isArray support: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray#Polyfill
   if (!Array.isArray) {
@@ -70,15 +73,32 @@
           last  = null;
 
       if( arguments[1] ) {
-          index = arguments[1]; last = arguments[2];
+          index = arguments[1];
+          last  = arguments[2];
       } else {
-          index = 0; last = 0; this.sort(); array.sort();
+          index = 0;
+          last  = 0;
+          this.sort();
+          array.sort();
       }
 
       return index == array.length ||
              ( last = this.indexOf( array[index], last ) ) > -1 &&
              this.containsArray( array, ++index, ++last );
   };
+
+  // Remove duplicate entries from array: http://stackoverflow.com/a/1961068/1227747
+  Array.prototype.unique = function(){
+   var u = {}, a = [];
+   for(var i = 0, l = this.length; i < l; ++i){
+      if(u.hasOwnProperty(this[i])) {
+         continue;
+      }
+      a.push(this[i]);
+      u[this[i]] = 1;
+   }
+   return a;
+ };
 
   /* End polyfills */
 
@@ -96,17 +116,21 @@
       _events[event](data);
   }
 
-  function _match (s1, s2) {
-    if( s1 == s2 )
+  function _match (search, record) {
+    if( search == record )
       return true;
-    else if( typeof s1 === 'string' && typeof s2 === 'string' )
-      return s1.toLowerCase() == s2.toLowerCase();
-    else if( typeof s1 === 'string' && Array.isArray(s2) ) // for 'PHP' = ['PHP','Python','Perl'] like comparison
-      return s2.indexOf(s1) > -1;
-    else if( Array.isArray(s1) && !Array.isArray(s2) ) // for ['PHP','Python','Perl'] = 'PHP' like comparison. logical OR
-      return s1.indexOf(s2) > -1;
-    else if( Array.isArray(s1) && Array.isArray(s2) ) // for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
-      return s2.containsArray(s1);
+    else if( typeof search === 'string' && typeof record === 'string' )
+      return search.toLowerCase() == record.toLowerCase();
+    else if( search.exec !== undefined && typeof record === 'string' ) // when RegExp is given as search
+      return search.exec(record) !== null;
+    else if( typeof search === 'string' && Array.isArray(record) ) // for 'PHP' = ['PHP','Python','Perl'] like comparison
+      return record.indexOf(search) > -1;
+    else if( Array.isArray(search) && !Array.isArray(record) ) // for ['PHP','Python','Perl'] = 'PHP' like comparison. logical OR
+      return search.indexOf(record) > -1;
+    else if( Array.isArray(search) && Array.isArray(record) ) // for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
+      return record.containsArray(search);
+    else if ( typeof search === 'object' && !isNaN(record) )
+      return ( record < search.$lt || record > search.$gt );
     else
       return false;
   }
@@ -122,11 +146,45 @@
     return _meta[name] !== undefined;
   }
 
+  function _repairDB () {
+    _collectionIterator(function(colName) {
+      if(_getData( _resolveName(colName, 'Data') ) === null)
+        _dropCollection(colName);
+    });
+
+    return _chotaObj;
+  }
+
+  function _accessCollection (name) {
+    if( _isCollection(name) ) {
+      return new ColCTRL(name);
+    } else {
+
+      _trigger('error', {
+        code: 2,
+        reason: 'Collection does not exists.'
+      });
+
+      return _chotaObj;
+    }
+  }
+
   function _createCollection (name) {
 
-    if( _isCollection(name) )
+    if(!name)
+      return _chotaObj;
+
+    if( _isCollection(name) && !_chotaObj.hasOwnProperty(name) ) {
       return new ColCTRL(name);
-  
+    } else if (_chotaObj.hasOwnProperty(name)) {
+      _trigger('error', {
+        code: 1,
+        reason: 'Collection cannot be created with this name.'
+      });
+
+      return _chotaObj;
+    }
+
     _meta[name] = {
       total: 0,
       nextKey: 1
@@ -143,6 +201,7 @@
 
     if( !_isCollection(name) ) {
       _trigger('error', {
+        code: 2,
         reason: 'Collection does not exists.'
       });
       return _chotaObj;
@@ -164,12 +223,12 @@
 
   function _getUnique (data, key) {
 
-     var _has = []
-     , _ret   = [];
+     var _has  = [],
+        _ret   = [];
 
      data.forEach(function(record) {
 
-        if( _has[record[key]] === undefined ) {
+        if( record[key] !== undefined && _has[record[key]] === undefined ) {
           _has[record[key]] = 1;
           _ret.push(record);
         }
@@ -177,7 +236,6 @@
      });
 
      return _ret;
-
   }
 
   function _sort (data, options) {
@@ -192,11 +250,16 @@
         key: '_id',
         type: options
       };
+    } else if(typeof options === 'string') {
+      options = {
+        key: options,
+        type: 1
+      };
     } else if(typeof options === 'object') {
       var _key = Object.keys(options)[0];
       options = {
-          key: _key,
-          type: options[_key]
+        key: _key,
+        type: options[_key]
       };
     }
 
@@ -221,8 +284,8 @@
     )
       return data;
 
-    if(options.sort)
-        data = _sort(data, options.sort);
+    if(options.sort || options.order)
+        data = _sort(data, options.sort || options.order);
 
     if(options.unique)
       data = _getUnique(data, options.unique);
@@ -253,7 +316,7 @@
 
     var _m        = _meta[colName], // meta for current collection
         _d        = _getData( _resolveName(colName, 'Data') ), // original data
-        _doingAnd = false, // so we don't reset current data set in find 
+        _doingAnd = false, // so we don't reset current data set in find
         _c        = _d; // current set of data being operated
 
     function _rebase (current) {
@@ -302,8 +365,7 @@
 
     }
 
-    function RecordCTRL ( recordIndex ) {
-      var _rec = _c[recordIndex];
+    function RecordCTRL ( _rec ) {
 
       var _recCtrl = {
         get data () { return _rec; },
@@ -317,6 +379,24 @@
             change: newData,
             affected: [_rec._id] // array. to keep consistency in event data
           });
+
+          return this;
+        },
+        increment: function(key) {
+          if(!isNaN( _rec[key] )) {
+            var newData = {};
+            newData[key] = ++_rec[key];
+            this.update(newData);
+          }
+
+          return this;
+        },
+        decrement: function(key) {
+          if(!isNaN( _rec[key] )) {
+            var newData = {};
+            newData[key] = --_rec[key];
+            this.update(newData);
+          }
 
           return this;
         },
@@ -354,17 +434,14 @@
         _c = _d;
         return this;
       },
-      get keys () {
-        // var _keys = [];
-        // _d.forEach(function(record) {
-        //     Object.keys(record).forEach(function(key) {
-        //       if(_keys[key] === undefined) {
-        //         console.log(_keys[key]);
-        //         _keys[key] = 1;
-        //       }
-        //     });
-        // });
-        // return _keys;
+      get keys () { // look into this
+        var _keys = [];
+        _d.forEach(function(record) {
+            Object.keys(record).forEach(function(key) {
+                _keys.push(key);
+            });
+        });
+        return _keys.unique();
       },
       insert: function(data) {
         data._id = _m.nextKey++;
@@ -390,10 +467,14 @@
         return this;
       },
       replicateTo: function(collection) {
+        if(typeof collection === 'string')
+          collection = new ColCTRL(collection);
         collection.bulkInsert( this.all.get() );
         return this;
       },
       replicateFrom: function(collection) {
+        if(typeof collection === 'string')
+          collection = new ColCTRL(collection);
         this.bulkInsert( collection.all.get() );
         return this;
       },
@@ -420,7 +501,9 @@
         options  = options || {};
 
         // when {}, null or nothing is passed to find
-        if(!search || search === null || (search !== null && typeof search == 'object' && _count(search) === 0) ) {
+        if(!search || search === null ||
+          (search !== null && typeof search == 'object' &&
+          _count(search) === 0) ) {
           // do nothing as all the data is in _c
 
           _c = _applyOpts(_d, options);
@@ -441,7 +524,7 @@
                   search[_k] === Infinity || // when .ANY is used
                   _match(search[_k], record[_k])
                 )
-              )
+               )
                 _c.push(record);
             }
 
@@ -479,8 +562,8 @@
         var removed = [];
 
         _c.forEach(function(recordCurrent) {
-            _removeRecord( recordCurrent );
-            removed.push( recordCurrent._id );
+          _removeRecord( recordCurrent );
+          removed.push( recordCurrent._id );
         });
 
         _meta[colName] = _m;
@@ -491,6 +574,10 @@
           removed: removed
         });
         return this;
+      },
+      empty: function () {
+        _dropCollection(colName);
+        return _createCollection(colName);
       },
       findById: function(id) {
 
@@ -511,7 +598,7 @@
       each: function(fn) {
 
         _c.forEach(function(record, index) {
-           fn.call( new RecordCTRL(index), record );
+          fn.call( new RecordCTRL(record), record );
         });
 
         return this;
@@ -569,26 +656,39 @@
     };
 
     //aliasing
-    _methods.where  = _methods.find;
+    _methods.where    = _methods.find;
+    _methods.orderBy  = _methods.sort;
+    _methods.groupBy  = _methods.unique;
 
     return _methods;
   }
 
-  var _getData
-  , _setData
-  , _removeData = null;
+  var _getData    = null,
+    _setData      = null,
+    _removeData   = null,
+    _dataResolver = {
+      parse:     JSON.parse,
+      stringify: JSON.stringify
+    };
 
   function _initSorage (env) {
     _storage = env;
 
       _getData = function (colName) {
-        return JSON.parse( _storage.getItem(colName) );
+        return _dataResolver.parse( _storage.getItem(colName) );
       };
 
       _setData = function (colName, data) {
-        var _temp = JSON.stringify( data );
-        _storage.setItem( colName, _temp );
-        return JSON.parse( _temp ); // to clear out undefined-as-value records
+        var _temp = _dataResolver.stringify( data );
+        try {
+          _storage.setItem( colName, _temp );
+        } catch(e) {
+          _trigger('error', {
+            code: 3,
+            reason: 'Unable to store data.'
+          });
+        }
+        return _dataResolver.parse( _temp ); // to clear out undefined-as-value records
       };
 
       _removeData = function (colName) {
@@ -611,19 +711,28 @@
   }
 
   // NodeJS support
-  if(typeof module === 'object' && module && typeof module.exports === 'object') {  
+  if(typeof module === 'object' && typeof module.exports === 'object') {
     _SEPERATOR = '-';
     var _s = require('node-persist');
     _s.initSync({
-      dir: process.env.PWD + '/ChotaData',
+      dir:       process.env.PWD + '/ChotaData',
       stringify: function(d) { return d; },
-      parse: function(d) { return d; }
+      parse:     function(d) { return d; }
     });
     _initSorage( _s );
     module.exports = _chota;
     _s = null;
-  } else if (_global.chrome && chrome.runtime && chrome.runtime.id){ // For Chrome extension envoirnment. : http://stackoverflow.com/a/22563123/1227747
-    _initSorage();
+  } else if (_global.chrome && chrome.runtime && chrome.runtime.id !== undefined){ // For Chrome extension envoirnment. : http://stackoverflow.com/a/22563123/1227747
+
+    // _dataResolver = {
+    //   stringify: function(d) { return d; },
+    //   parse: function(d) { return d; }
+    // };
+
+    _initSorage( _global.localStorage );
+    // expose to window
+    _global.ChotaDB = _chota;
+
   } else if( _global.localStorage ) {
     _initSorage( _global.localStorage );
     // expose to window

@@ -14,19 +14,13 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '/*! \n <%= pkg.name %>.js v<%= pkg.version %> generated on <%= grunt.template.today("dd-mm-yyyy HH:MM:ss") %> - (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> \n Available under MIT license. - <%= pkg.homepage %> \n*/\n'
+        banner: '/*\n  <%= pkg.name %>.js v<%= pkg.version %> file generated on <%= grunt.template.today() %> \n  (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %> \n  Available under MIT license - <%= pkg.homepage %> \n*/\n\n'
       },
       build: {
         src: 'src/<%= pkg.name %>.js',
         dest: 'build/<%= pkg.name %>.min.js'
       }
     }
-    // concat: {
-    //   license: {
-    //     src: ['LICENSE', 'build/<%= pkg.name %>.min.js'],
-    //     dest: 'build/<%= pkg.name %>.min.js',
-    //   },
-    // }
   });
 
   grunt.registerTask('default', [
