@@ -30,13 +30,13 @@ Nice, eh!
 
  * Of course, to store data on client-side
  * Cache
- * Store a copy of server DB localy for faster access
+ * Store a copy of server DB locally for faster access
  * User's settings
- * Finally something to use in hybird apps. e.g.: Cordova
+ * Finally something to use in hybrid apps. e.g.: Cordova
  * Whatever reason you were using `localStorage` for.
 
 
-### On this page 
+### On this page
 
 * [Support/Compatibility](#supportcompatibility)
 * [Concepts](#concepts)
@@ -57,7 +57,7 @@ Nice, eh!
 
 ## Support/Compatibility
 
-As this library depends upon the availablity of `localStorage` so wherever you can use `localStorage`, you can use `ChotaDB` too.
+As this library depends upon the availability of `localStorage` so wherever you can use `localStorage`, you can use `ChotaDB` too.
 
 Fortunately for us, `localStorage` is supported on a wide array of devices and browsers.
 
@@ -79,7 +79,7 @@ In addition to these browsers, ChotaDB is also supported in:
 
 ## Concepts
 
-ChotaDB tries to folow the same concepts used in MongoDB. Similar to Mongo, you can create collections (known as tables in SQL) to store data.
+ChotaDB tries to follow the same concepts used in MongoDB. Similar to Mongo, you can create collections (known as tables in SQL) to store data.
 
 ### Storing
 Each data record (documents in Mongo and rows in SQL) is stored as an `object` in collections. In other words, a collection is an `array` of `objects`.

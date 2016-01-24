@@ -10,7 +10,6 @@
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
       _SEPERATOR = '/',
       _chotaObj = { // to be returned
-        ALL: Infinity,
         ANY: Infinity,
         SORT: {
           ASC: 1,
@@ -199,6 +198,9 @@
 
   function _dropCollection (name) {
 
+    if(!name)
+      return _chotaObj;
+
     if( !_isCollection(name) ) {
       _trigger('error', {
         code: 2,
@@ -308,8 +310,13 @@
   }
 
   function _collectionIterator (fn) {
+    if(!fn)
+      return _chotaObj;
+
     for (var _d in _meta)
       fn.call( new ColCTRL(_d), _d );
+
+    return _chotaObj;
   }
 
   function ColCTRL (colName) {
@@ -367,8 +374,9 @@
 
     function RecordCTRL ( _rec ) {
 
-      var _recCtrl = {
+      var _record = {
         get data () { return _rec; },
+        get keys () { return Object.keys(_rec); },
         update: function(newData) {
 
           _rec = _updateRecord( _rec, newData );
@@ -417,10 +425,10 @@
 
       };
 
-      return _recCtrl;
+      return _record;
     }
 
-    var _methods = {
+    var _collection = {
       get data () {
         return _getData( _resolveName(colName, 'Data') );
       },
@@ -434,12 +442,12 @@
         _c = _d;
         return this;
       },
-      get keys () { // look into this
+      get keys () {
         var _keys = [];
         _d.forEach(function(record) {
-            Object.keys(record).forEach(function(key) {
-                _keys.push(key);
-            });
+          Object.keys(record).forEach(function(key) {
+            _keys.push(key);
+          });
         });
         return _keys.unique();
       },
@@ -656,11 +664,11 @@
     };
 
     //aliasing
-    _methods.where    = _methods.find;
-    _methods.orderBy  = _methods.sort;
-    _methods.groupBy  = _methods.unique;
+    _collection.where    = _collection.find;
+    _collection.orderBy  = _collection.sort;
+    _collection.groupBy  = _collection.unique;
 
-    return _methods;
+    return _collection;
   }
 
   var _getData    = null,
