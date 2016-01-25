@@ -3,9 +3,8 @@
 [![GitHub version](https://badge.fury.io/gh/moinism%2Fchotadb.svg)](https://badge.fury.io/gh/moinism%2Fchotadb)
 [![npm version](https://badge.fury.io/js/chotadb.svg)](https://badge.fury.io/js/chotadb)
 [![Bower version](https://badge.fury.io/bo/chotadb.svg)](https://badge.fury.io/bo/chotadb)
-[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/moinism/chotadb/blob/master/LICENSE.md)
 [![JSHint](https://img.shields.io/badge/jshint-OK-brightgreen.svg?style=flat)]()
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/2c6d613998d443a6b2e823ca60ee3d08)](https://www.codacy.com/app/me_60/chotadb)
+[![Codacy](https://img.shields.io/codacy/a09c3b15ca654b758a0677681ce1c3e1.svg)](https://www.codacy.com/app/me_60/chotadb)
 
 # ChotaDB
 
