@@ -1,33 +1,12 @@
-/*jshint es5: true */
+(function (_global) {
 
-;(function (_global) {
-
-  'use strict';
+  "use strict";
 
   var _meta     = {}, // to hold global meta
       _events   = [], // events and callback store
       _opts     = {}, // config object passed to constructor
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
-      _SEPERATOR = '/',
-      _chotaObj = { // to be returned
-        ANY: Infinity,
-        SORT: {
-          ASC: 1,
-          DSC: -1
-        },
-        create: _createCollection,
-        drop: _dropCollection,
-        each: _collectionIterator,
-        hasCollection: _isCollection,
-        match: RegExp,
-        on: _on,
-        repair: _repairDB,
-        select: _accessCollection
-      },
-      _chota    = function(opts) { // constructor
-        opts = opts || {}; // not using it. just future-proofing
-        return _chotaObj;
-      };
+      _SEPERATOR = '/';
 
   /* start polyfills & utilities */
 
@@ -81,7 +60,7 @@
           array.sort();
       }
 
-      return index == array.length ||
+      return index === array.length ||
              ( last = this.indexOf( array[index], last ) ) > -1 &&
              this.containsArray( array, ++index, ++last );
   };
@@ -116,21 +95,21 @@
   }
 
   function _match (search, record) {
-    if( search == record )
+    if( search == record ) {
       return true;
-    else if( typeof search === 'string' && typeof record === 'string' )
+    } else if( typeof search === 'string' && typeof record === 'string' ) {
       return search.toLowerCase() == record.toLowerCase();
-    else if( search.exec !== undefined && typeof record === 'string' ) // when RegExp is given as search
+    } else if( search.exec !== undefined && typeof record === 'string' ) { // when RegExp is given as search
       return search.exec(record) !== null;
-    else if( typeof search === 'string' && Array.isArray(record) ) // for 'PHP' = ['PHP','Python','Perl'] like comparison
+    } else if( typeof search === 'string' && Array.isArray(record) ) {// for 'PHP' = ['PHP','Python','Perl'] like comparison
       return record.indexOf(search) > -1;
-    else if( Array.isArray(search) && !Array.isArray(record) ) // for ['PHP','Python','Perl'] = 'PHP' like comparison. logical OR
+    } else if( Array.isArray(search) && !Array.isArray(record) ) {// for ['PHP','Python','Perl'] = 'PHP' like comparison. logical OR
       return search.indexOf(record) > -1;
-    else if( Array.isArray(search) && Array.isArray(record) ) // for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
+    } else if( Array.isArray(search) && Array.isArray(record) ) {// for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
       return record.containsArray(search);
-    else if ( typeof search === 'object' && !isNaN(record) )
+    } else if ( typeof search === 'object' && !isNaN(record) ) {
       return ( record < search.$lt || record > search.$gt );
-    else
+    } else
       return false;
   }
 
@@ -717,6 +696,26 @@
       );
     }
   }
+
+  var _chotaObj = { // to be returned
+    ANY: Infinity,
+    SORT: {
+      ASC: 1,
+      DSC: -1
+    },
+    create: _createCollection,
+    drop: _dropCollection,
+    each: _collectionIterator,
+    hasCollection: _isCollection,
+    match: RegExp,
+    on: _on,
+    repair: _repairDB,
+    select: _accessCollection
+  },
+  _chota    = function(opts) { // constructor
+    opts = opts || {}; // not using it. just future-proofing
+    return _chotaObj;
+  };
 
   // NodeJS support
   if(typeof module === 'object' && typeof module.exports === 'object') {
