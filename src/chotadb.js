@@ -22,7 +22,7 @@
         match: RegExp,
         on: _on,
         repair: _repairDB,
-        select: _accessCollection,
+        select: _accessCollection
       },
       _chota    = function(opts) { // constructor
         opts = opts || {}; // not using it. just future-proofing
@@ -111,7 +111,7 @@
   }
 
   function _trigger (event, data) {
-    if(typeof _events[event] == 'function')
+    if(typeof _events[event] === 'function')
       _events[event](data);
   }
 
@@ -137,7 +137,7 @@
   function _count (target) {
     if(Array.isArray(target) || typeof target == 'string')
       return target.length;
-    else if(typeof target == 'object')
+    else if(typeof target === 'object')
       return Object.keys(target).length;
   }
 
@@ -281,7 +281,7 @@
     // no options, nothing to apply
     if(
       !options ||
-      typeof options != 'object' ||
+      typeof options !== 'object' ||
       options === null
     )
       return data;
@@ -343,7 +343,7 @@
 
     function _applyCallback (fn, data, that) {
       if(fn && typeof fn === 'function'){
-        fn.call(null, data);
+        fn(data);
         return that;
       } else
         return data;
@@ -353,7 +353,7 @@
 
       _loopOnD(record._id, function(recordOriginal, index) {
         for(var _k in newData) {
-            if(_k != '_id') {
+            if(_k !== '_id') {
               record[_k] = newData[_k];
             }
         }
@@ -384,8 +384,8 @@
           _rebase();
           _trigger('updated',{
             collection: colName,
-            change: newData,
-            affected: [_rec._id] // array. to keep consistency in event data
+            change:     newData,
+            affected:   [_rec._id] // array. to keep consistency in event data
           });
 
           return this;
@@ -510,7 +510,7 @@
 
         // when {}, null or nothing is passed to find
         if(!search || search === null ||
-          (search !== null && typeof search == 'object' &&
+          (search !== null && typeof search === 'object' &&
           _count(search) === 0) ) {
           // do nothing as all the data is in _c
 

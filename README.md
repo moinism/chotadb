@@ -4,7 +4,8 @@
 [![npm version](https://badge.fury.io/js/chotadb.svg)](https://badge.fury.io/js/chotadb)
 [![Bower version](https://badge.fury.io/bo/chotadb.svg)](https://badge.fury.io/bo/chotadb)
 [![JSHint](https://img.shields.io/badge/jshint-OK-brightgreen.svg?style=flat)]()
-[![Codacy](https://img.shields.io/codacy/a09c3b15ca654b758a0677681ce1c3e1.svg)](https://www.codacy.com/app/me_60/chotadb)
+[![Code quality](https://img.shields.io/codacy/a09c3b15ca654b758a0677681ce1c3e1.svg)](https://www.codacy.com/app/me_60/chotadb)
+[![License](https://img.shields.io/badge/license-MIT%20License-blue.svg?style=flat)](https://github.com/moinism/chotadb/blob/master/LICENSE.md)
 
 # ChotaDB
 
