@@ -1,8 +1,13 @@
 > This is an initial release to GitHub. Please do not use it yet.
 
+[![GitHub version](https://badge.fury.io/gh/moinism%2Fchotadb.svg)](https://badge.fury.io/gh/moinism%2Fchotadb)
+[![npm version](https://badge.fury.io/js/chotadb.svg)](https://badge.fury.io/js/chotadb)
+[![Bower version](https://badge.fury.io/bo/chotadb.svg)](https://badge.fury.io/bo/chotadb)
+
 # ChotaDB
 
 > A wrapper over `window.localStorage` to use it as No-SQL DB.
+
 
 ChotaDB provides a simple and elegant API to interface with `localStorage`. `localStorage` is already a great way to store and access user data but it only supports `string` to be stored. What if you could store objects and use it like a DB; create collections (like MongoDB), insert records, search, sort, update, remove ...?
 
