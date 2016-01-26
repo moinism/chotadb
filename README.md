@@ -1,4 +1,3 @@
-> This is an initial release to GitHub. Please do not use it yet.
 
 [![GitHub version](https://badge.fury.io/gh/moinism%2Fchotadb.svg)](https://badge.fury.io/gh/moinism%2Fchotadb)
 [![npm version](https://badge.fury.io/js/chotadb.svg)](https://badge.fury.io/js/chotadb)
