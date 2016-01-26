@@ -237,7 +237,7 @@
         key: '_id',
         type: 1
       };
-    } else if( (options === 1 || options === -1) ) {
+    } else if( options === 1 || options === -1 ) {
       options = {
         key: '_id',
         type: options
@@ -318,8 +318,9 @@
 
     function _rebase (current) {
       _d =_setData( _resolveName(colName, 'Data'), _d );
-      if(current)
+      if(current) {
         _c = _d;
+      }
     }
 
     function _loopOnD (id, fn) {
@@ -335,8 +336,9 @@
       if(fn && typeof fn === 'function'){
         fn(data);
         return that;
-      } else
+      } else {
         return data;
+      }
     }
 
     function _updateRecord (record, newData) {
@@ -538,6 +540,16 @@
           _c = _applyOpts(_c, options);
           return this;
         }
+      },
+      join: function (collection, search, options) {
+        if(typeof collection === 'string')
+          collection = new ColCTRL(collection);
+
+        collection.find(search, options).each(function (record) {
+          _c.push(record);
+        });
+
+        return this;
       },
       update: function(newData) {
 

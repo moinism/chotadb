@@ -1,6 +1,6 @@
 {
   "name": "chotadb",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A wrapper over localStorage to provide MongoDB-like interface.",
   "main": "./build/chotadb.min.js",
   "scripts": {
