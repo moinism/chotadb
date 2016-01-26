@@ -129,7 +129,7 @@ For example, current data set in a collection named `guys` looks like this:
 ```javascript
 [{
   _id: 1,
-  name: "John”,
+  name: "John",
   age: 16
 },{
   _id: 2,
