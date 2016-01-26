@@ -3,12 +3,19 @@
   "use strict";
 
   var _meta     = {}, // to hold global meta
-      _events   = [], // events and callback store
       _opts     = {}, // config object passed to constructor
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
-      _SEPERATOR = '/';
+      _SEPERATOR = '/',
+      _events   = { // events and callback store
+        error:    [],
+        created:  [],
+        dropped:  [],
+        inserted: [],
+        updated:  [],
+        removed:  []
+      };
 
-  /* start polyfills & utilities */
+  /* polyfills & custom utility methods */
 
   // for < IE9 Array.isArray support: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray#Polyfill
   if (!Array.isArray) {
@@ -78,40 +85,43 @@
    return a;
  };
 
-  /* End polyfills */
+  /* End polyfills & custom utility methods */
 
   function _resolveName (colName, type) {
     return 'ChotaDB' + (type ? _SEPERATOR + type : '') + _SEPERATOR + colName;
   }
 
   function _on (event, callback) {
-    _events[event] = callback;
+    _events[event].push(callback);
     return _chotaObj;
   }
 
   function _trigger (event, data) {
-    if(typeof _events[event] === 'function')
-      _events[event](data);
+    _events[event].forEach(function (evt) {
+      evt(data);
+    });
   }
 
   function _match (search, record) {
     if( search == record ) {
       return true;
-    } else if( typeof search === 'string' && typeof record === 'string' ) {
-      return search.toLowerCase() == record.toLowerCase();
-    } else if( search.exec !== undefined && typeof record === 'string' ) { // when RegExp is given as search
-      return search.exec(record) !== null;
-    } else if( typeof search === 'string' && Array.isArray(record) ) {// for 'PHP' = ['PHP','Python','Perl'] like comparison
-      return record.indexOf(search) > -1;
-    } else if( Array.isArray(search) && !Array.isArray(record) ) {// for ['PHP','Python','Perl'] = 'PHP' like comparison. logical OR
-      return search.indexOf(record) > -1;
-    } else if( Array.isArray(search) && Array.isArray(record) ) {// for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
-      return record.containsArray(search);
-    } else if ( typeof search === 'object' && !isNaN(record) ) {
-      return ( record < search.$lt || record <= search.$lte ||
-        record > search.$gt || record >= search.$gte );
+    }
+
+    if( typeof search === 'string' ) {
+      return ( typeof record === 'string' &&
+        search.toLowerCase() == record.toLowerCase()) ||
+      (Array.isArray(record) && record.indexOf(search) > -1); // for 'PHP' in ['PHP','Python','Perl'] like comparison
+    } else if ( typeof search === 'object' ) {  // comparison operators
+      return ( (search.exec !== undefined && search.exec(record) !== null) || // RegExp
+      (search.$ne && record !== search.$ne) ||
+      record < search.$lt || record <= search.$lte ||
+      record > search.$gt || record >= search.$gte );
+    } else if( Array.isArray(search) ) {
+      return (!Array.isArray(record) && search.indexOf(record) > -1) || // for any of ['PHP','Python','Perl'] matches 'PHP' comparison. $in
+      (Array.isArray(record) && record.containsArray(search)); // for ['PHP', 'Perl'] part of ['PHP','Python','Perl'] like comparison
     } else
       return false;
+
   }
 
   function _count (target) {
@@ -266,8 +276,8 @@
     )
       return data;
 
-    if(options.sort || options.order)
-        data = _sort(data, options.sort || options.order);
+    if(options.sort || options.orderBy)
+        data = _sort(data, options.sort || options.orderBy);
 
     if(options.unique)
       data = _getUnique(data, options.unique);
@@ -501,19 +511,26 @@
 
           var _temp = _c;
           _c = [];
+          var _searchKeys  = _count(search),
+              _searchMatch = 0;
 
           _temp.forEach(function(record) {
+            _searchMatch = 0;
 
             for(var _k in search) {
-
                if(
-                record[_k] !== undefined &&
-                (
-                  search[_k] === Infinity || // when .ANY is used
-                  _match(search[_k], record[_k])
-                )
-               )
+                  record[_k] !== undefined &&
+                  (
+                    search[_k] === Infinity || // when .ANY is used
+                    _match(search[_k], record[_k])
+                  )
+                ) {
+                  _searchMatch++;
+               }
+
+              if(_searchMatch == _searchKeys) {
                 _c.push(record);
+              }
             }
 
           });
@@ -711,7 +728,13 @@
     match: RegExp,
     on: _on,
     repair: _repairDB,
-    select: _accessCollection
+    select: _accessCollection,
+
+    gt:  function (n) { return {$gt:  n}; },
+    gte: function (n) { return {$gte: n}; },
+    lt:  function (n) { return {$lt:  n}; },
+    lte: function (n) { return {$lte: n}; },
+    ne:  function (n) { return {$ne:  n}; }
   },
   _chota    = function(opts) { // constructor
     opts = opts || {}; // not using it. just future-proofing
