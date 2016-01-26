@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Chotadb by moinism</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Chotadb</h1>
+      <h2 class="project-tagline">A wrapper over window.localStorage to turn it into a No-SQL DB.</h2>
+      <a href="https://github.com/moinism/chotadb" class="btn">View on GitHub</a>
+      <a href="https://github.com/moinism/chotadb/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/moinism/chotadb/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="chotadb" class="anchor" href="#chotadb" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ChotaDB</h1>
+
+<blockquote>
+<p>A wrapper over <code>window.localStorage</code> to use it as No-SQL DB.</p>
+</blockquote>
+
+<p>ChotaDB provides a simple and elegant API to interface with <code>localStorage</code>. <code>localStorage</code> is already a great way to store and access user data but it only supports <code>string</code> to be stored. What if you could store objects and use it like a DB; create collections (like MongoDB), insert records, search, sort, update, remove ...?</p>
+
+<h4>
+<a id="quick-look" class="anchor" href="#quick-look" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick look:</h4>
+
+<p>ChotaDB provide methods for complete CRUDS operations.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> <span class="pl-c1">DB</span> <span class="pl-k">=</span> <span class="pl-en">ChotaDB</span>();
+
+<span class="pl-smi">DB</span>.<span class="pl-en">create</span>(<span class="pl-s"><span class="pl-pds">'</span>Users<span class="pl-pds">'</span></span>)
+  .<span class="pl-en">insert</span>({ name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Moin<span class="pl-pds">'</span></span> })
+  .<span class="pl-c1">find</span>({ name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Moin<span class="pl-pds">'</span></span> })
+  .<span class="pl-en">update</span>({ name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Moin Uddin<span class="pl-pds">'</span></span>})
+  .<span class="pl-en">remove</span>();
+
+<span class="pl-smi">DB</span>.<span class="pl-en">drop</span>(<span class="pl-s"><span class="pl-pds">'</span>Users<span class="pl-pds">'</span></span>);</pre></div>
+
+<p>Nice, eh!</p>
+
+<h4>
+<a id="why-over-localstorage" class="anchor" href="#why-over-localstorage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why over localStorage?</h4>
+
+<p><code>localStorage</code> is massively supported in browsers and devices currently being used and has a storage capacity <a href="http://www.html5rocks.com/en/tutorials/offline/quota-research/" target="_blank">ranging from 2MB to 10MB</a>. So why not use it in more powerful way!</p>
+
+<h3>
+<a id="why-use-it" class="anchor" href="#why-use-it" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why use it?</h3>
+
+<ul>
+<li>Of course, to store data on client-side</li>
+<li>Cache</li>
+<li>Store a copy of server DB locally for faster access</li>
+<li>User's settings</li>
+<li>Finally something to use in hybrid apps. e.g.: Cordova</li>
+<li>Whatever reason you were using <code>localStorage</code> for.</li>
+</ul>
+
+<h3>
+<a id="on-this-page" class="anchor" href="#on-this-page" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>On this page</h3>
+
+<ul>
+<li><a href="#supportcompatibility">Support/Compatibility</a></li>
+<li>
+<a href="#concepts">Concepts</a>
+
+<ul>
+<li><a href="#storing">Storing</a></li>
+<li><a href="#accessing">Accessing</a></li>
+<li><a href="#events">Events</a></li>
+</ul>
+</li>
+<li>
+<a href="#how-to-use-it">How to use it</a>
+
+<ul>
+<li><a href="#installation">Installation</a></li>
+<li>
+<a href="#usage">Usage</a>
+
+<ul>
+<li><a href="#create-a-new-collection-same-as-table-in-sql">Create a new collection (same as table in SQL)</a></li>
+<li><a href="#insert-a-record">Insert a record</a></li>
+<li><a href="#search-records">Search records</a></li>
+<li><a href="#update-records">Update records</a></li>
+<li><a href="#remove-records">Remove records</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#to-do">To do</a></li>
+<li><a href="#resources">Resources</a></li>
+</ul>
+
+<h2>
+<a id="supportcompatibility" class="anchor" href="#supportcompatibility" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support/Compatibility</h2>
+
+<p>As this library depends upon the availability of <code>localStorage</code> so wherever you can use <code>localStorage</code>, you can use <code>ChotaDB</code> too.</p>
+
+<p>Fortunately for us, <code>localStorage</code> is supported on a wide array of devices and browsers.</p>
+
+<p>It has been <a href="https://developer.mozilla.org/en/docs/Web/API/Window/localStorage#Browser_compatibility" target="_blank">supported in browsers</a> since:</p>
+
+<ul>
+<li>Chrome 4</li>
+<li>FireFox 3.5</li>
+<li>IE 8</li>
+<li>Opera 10.50</li>
+<li>Safari 4</li>
+</ul>
+
+<p>In addition to these browsers, ChotaDB is also supported in:</p>
+
+<ul>
+<li>NodeJS</li>
+<li>Chrome Extensions/Apps</li>
+<li>
+<strong>Cordova</strong> (yay!) <img class="emoji" title=":sparkles:" alt=":sparkles:" src="https://assets-cdn.github.com/images/icons/emoji/unicode/2728.png" height="20" width="20" align="absmiddle">
+</li>
+<li><a href="http://electron.atom.io/" target="_blank">Electron</a></li>
+</ul>
+
+<h2>
+<a id="concepts" class="anchor" href="#concepts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Concepts</h2>
+
+<p>ChotaDB tries to follow the same concepts used in MongoDB. Similar to Mongo, you can create collections (known as tables in SQL) to store data.</p>
+
+<h3>
+<a id="storing" class="anchor" href="#storing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Storing</h3>
+
+<p>Each data record (documents in Mongo and rows in SQL) is stored as an <code>object</code> in collections. In other words, a collection is an <code>array</code> of <code>objects</code>.
+So a typical collection may look like:</p>
+
+<pre><code>[record, record, ..., record]
+</code></pre>
+
+<p>Your data (record) can have any schema you like. You can store objects, strings, numbers, arrays and booleans. In one collection, your records do not need to follow the same schema as previous one.</p>
+
+<p>For example:</p>
+
+<p>If you insert one record as:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">DB</span>.<span class="pl-smi">Users</span>.<span class="pl-en">insert</span>({
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Moin<span class="pl-pds">'</span></span>
+});</pre></div>
+
+<p>And second one as:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">DB</span>.<span class="pl-smi">Users</span>.<span class="pl-en">insert</span>({
+  first_name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Moin<span class="pl-pds">'</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">20</span>
+});</pre></div>
+
+<p>It is completely fine and won't produce any errors. All the data is encoded to JSON and then stored in <code>localStorage</code>.</p>
+
+<h3>
+<a id="accessing" class="anchor" href="#accessing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accessing</h3>
+
+<p>Similar to Mongo's cursor, ChotaDB creates a set of data for operations. Every method called on a collection can access and modify that set.</p>
+
+<p>For example, current data set in a collection named <code>guys</code> looks like this:</p>
+
+<div class="highlight highlight-source-js"><pre>[{
+  _id<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>John<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">16</span>
+},{
+  _id<span class="pl-k">:</span> <span class="pl-c1">2</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Doe<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">18</span>
+}
+},{
+  _id<span class="pl-k">:</span> <span class="pl-c1">3</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Smith<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">22</span>
+}]</pre></div>
+
+<p>And we perform a <code>find</code> on it to search for all the guys who are 18 years of age or older:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">DB</span>.<span class="pl-smi">guys</span>.<span class="pl-c1">find</span>({
+  age<span class="pl-k">:</span> {
+    $gte<span class="pl-k">:</span> <span class="pl-c1">18</span>
+  }
+});</pre></div>
+
+<p>Data set would become:</p>
+
+<div class="highlight highlight-source-js"><pre>[{
+  _id<span class="pl-k">:</span> <span class="pl-c1">2</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Doe<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">18</span>
+}
+},{
+  _id<span class="pl-k">:</span> <span class="pl-c1">3</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Smith<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">22</span>
+}]</pre></div>
+
+<p>So all the operations performed will affect this set only. Let's say we update it and add a field name <code>isAdult</code> to all those.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">DB</span>.<span class="pl-smi">guys</span>.<span class="pl-c1">find</span>({
+  age<span class="pl-k">:</span> {
+    $gte<span class="pl-k">:</span> <span class="pl-c1">18</span>
+  }
+}).<span class="pl-en">update</span>({
+  isAdult<span class="pl-k">:</span> <span class="pl-c1">true</span>
+});</pre></div>
+
+<p>Current data set would something like:</p>
+
+<div class="highlight highlight-source-js"><pre>[{
+  _id<span class="pl-k">:</span> <span class="pl-c1">2</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Doe<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">18</span>,
+  isAdult<span class="pl-k">:</span> <span class="pl-c1">true</span>
+}
+},{
+  _id<span class="pl-k">:</span> <span class="pl-c1">3</span>,
+  name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Smith<span class="pl-pds">"</span></span>,
+  age<span class="pl-k">:</span> <span class="pl-c1">22</span>,
+  isAdult<span class="pl-k">:</span> <span class="pl-c1">true</span>
+}]</pre></div>
+
+<p>All the methods on a collection would perform operation on data and return the collection itself except <code>get</code> and <code>count</code> which return the current data set and number of records in it, respectively.</p>
+
+<p>All the data will be returned as an <code>array</code> of <code>objects</code>. Like:</p>
+
+<pre><code>[object, object, ..., object]
+</code></pre>
+
+<p>ChotaDB supports method chaining, promises, synchronous as well as asynchronous execution for some methods.</p>
+
+<h3>
+<a id="events" class="anchor" href="#events" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Events</h3>
+
+<p>ChotaDB supports a set of that you can subscribe to.</p>
+
+<ul>
+<li>
+<code>error</code> : When there is an error execution of any command</li>
+<li>
+<code>created</code> : When a new collection is created</li>
+<li>
+<code>inserted</code> : When a new record is inserted into a collection</li>
+<li>
+<code>updated</code> : When a record is changed</li>
+<li>
+<code>removed</code> : When a record is removed from a collection</li>
+<li>
+<code>dropped</code> : When a collection is dropped/deleted</li>
+</ul>
+
+<p>More details about events can be read on <a href="https://github.com/moinism/chotadb/wiki/Events">API wiki site</a>.</p>
+
+<p>You can use the <code>on</code> method on <code>ChotaDB</code> instance to subscribe to any event.</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-k">var</span> <span class="pl-c1">DB</span> <span class="pl-k">=</span> <span class="pl-en">ChotaDB</span>();
+
+  <span class="pl-smi">DB</span>.<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>error<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">err</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">error</span>(err);
+  }).<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>created<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">res</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(res);
+  }).<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>inserted<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">res</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(res);
+  }).<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>updated<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">res</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(res);
+  }).<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>removed<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">res</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(res);
+  }).<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>dropped<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">res</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(res);
+  });</pre></div>
+
+<h2>
+<a id="how-to-use-it" class="anchor" href="#how-to-use-it" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use it</h2>
+
+<h3>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Install it via package managers:</p>
+
+<p><strong>Bower</strong>:</p>
+
+<div class="highlight highlight-source-shell"><pre>bower install chotadb</pre></div>
+
+<p>Then include in your file:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/javascript<span class="pl-pds">"</span></span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>bower_components/chotadb/build/chotadb.min.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
+
+<p>In <strong>NodeJS</strong>:</p>
+
+<div class="highlight highlight-source-shell"><pre>npm install chotadb</pre></div>
+
+<p>Then require it like:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> ChotaDB <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>chotadb<span class="pl-pds">'</span></span>);</pre></div>
+
+<p>For other web, Cordova &amp; Chrome based projects simply <a href="https://raw.githubusercontent.com/moinism/chotadb/master/build/chotadb.min.js" target="_blank">download</a> and include the file in your pages:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">script</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>chotadb.min.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>Below is an quick overview of what can be done with ChotaDB. For more details, please <a href="https://github.com/moinism/chotadb/wiki">read API docs</a>.</p>
+
+<p>Start with creating an instance of <code>ChotaDB</code>:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> Store <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">ChotaDB</span>();</pre></div>
+
+<h5>
+<a id="create-a-new-collection-same-as-table-in-sql" class="anchor" href="#create-a-new-collection-same-as-table-in-sql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create a new collection (same as table in SQL):</h5>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> Emails <span class="pl-k">=</span> <span class="pl-smi">Store</span>.<span class="pl-en">create</span>(<span class="pl-s"><span class="pl-pds">'</span>Emails<span class="pl-pds">'</span></span>);</pre></div>
+
+<p>If a collection already exists with the same name then its instance will be returned.</p>
+
+<p>Once a collection is created it becomes a <code>property</code> on <code>DB</code> instance. So in this case, you can also access it via <code>Store.Emails</code>.</p>
+
+<h5>
+<a id="insert-a-record" class="anchor" href="#insert-a-record" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Insert a record:</h5>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-en">insert</span>({
+  title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Re: New DB for client-side data<span class="pl-pds">'</span></span>,
+  from<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>me@moin.im<span class="pl-pds">'</span></span>,
+  tags<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>Personal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>JS<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Client-side<span class="pl-pds">'</span></span>],
+  time<span class="pl-k">:</span> <span class="pl-smi">Date</span>.<span class="pl-en">now</span>(),
+  isRead<span class="pl-k">:</span> <span class="pl-c1">false</span>
+}).<span class="pl-en">then</span>(<span class="pl-k">function</span>(){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Email arrived.<span class="pl-pds">'</span></span>);
+});</pre></div>
+
+<p>Data inserted into the collection would look something like this:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  _id<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+  title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Re: New DB for client-side data<span class="pl-pds">"</span></span>,
+  from<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>me@moin.im<span class="pl-pds">"</span></span>,
+  tags<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>Personal<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>JS<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Client-side<span class="pl-pds">'</span></span>],
+  time<span class="pl-k">:</span> <span class="pl-c1">1451302067412</span>,
+  isRead<span class="pl-k">:</span> <span class="pl-c1">false</span>
+}</pre></div>
+
+<p>Notice the extra <code>_id</code> key. It is a reserved key name and is used by ChotaDB to take care of unique and auto-incrementing ID for records in a collection.
+It is different from MongoDB because MongoDB creates a 12 byte (24 hex characters) string for <code>_id</code> but ChotaDB creates an integer.</p>
+
+<blockquote>
+<p>You cannot set or change the <code>_id</code>. It will be overwritten even if you did. Use any other key name like <code>id</code> if you have to.</p>
+</blockquote>
+
+<h5>
+<a id="search-records" class="anchor" href="#search-records" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Search records:</h5>
+
+<p>Each collections has a method <code>find</code> which can be used for searching.</p>
+
+<p>So for example we wanted to know the number of emails which are unread we'll do something like this:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>({
+  isRead<span class="pl-k">:</span> <span class="pl-c1">false</span>
+}).<span class="pl-en">count</span>(<span class="pl-k">function</span>(<span class="pl-smi">total</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>You have<span class="pl-pds">'</span></span>, total, <span class="pl-s"><span class="pl-pds">'</span>unread emails.<span class="pl-pds">'</span></span>);
+});</pre></div>
+
+<p><code>find</code> will look for all the records having their <code>isRead</code> set to <code>false</code>.</p>
+
+<p>If we wanted to access all the emails, we'll call <code>find</code> without any search criteria (<code>object</code>) being passed to it.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>().<span class="pl-en">each</span>(<span class="pl-k">function</span>(<span class="pl-smi">email</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Email:<span class="pl-pds">'</span></span>, <span class="pl-smi">email</span>.<span class="pl-c1">title</span>);
+});</pre></div>
+
+<p><code>each</code> iterates over all the records returned.</p>
+
+<p>If we wanted to find the ones having <code>JS</code> tag</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>({
+  tags<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>JS<span class="pl-pds">'</span></span>
+}).<span class="pl-en">each</span>(<span class="pl-k">function</span>(<span class="pl-smi">email</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>JS Email:<span class="pl-pds">'</span></span>, <span class="pl-smi">email</span>.<span class="pl-c1">title</span>);
+});</pre></div>
+
+<p>Or the ones having both <code>Personal</code> &amp; <code>JS</code> tags.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>({
+  tags<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>Personal<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>JS<span class="pl-pds">'</span></span>]
+}).<span class="pl-en">each</span>(<span class="pl-k">function</span>(<span class="pl-smi">email</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Personal JS Email:<span class="pl-pds">'</span></span>, <span class="pl-smi">email</span>.<span class="pl-c1">title</span>);
+});</pre></div>
+
+<h5>
+<a id="update-records" class="anchor" href="#update-records" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Update records:</h5>
+
+<p>To update a record, <code>update</code> method can be chained to <code>find</code> to update all the records returned by <code>find</code>.</p>
+
+<p>So for example, we want all the unread emails to be marked as read</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>({
+  isRead<span class="pl-k">:</span> <span class="pl-c1">false</span>
+}).<span class="pl-en">update</span>({
+  isRead<span class="pl-k">:</span> <span class="pl-c1">true</span>
+}).<span class="pl-en">then</span>(<span class="pl-k">function</span>(){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>All the emails are marked as read.<span class="pl-pds">'</span></span>);
+});</pre></div>
+
+<h5>
+<a id="remove-records" class="anchor" href="#remove-records" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Remove records:</h5>
+
+<p>Let's delete all the emails older than a month.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> nowTime <span class="pl-k">=</span> <span class="pl-smi">Date</span>.<span class="pl-en">now</span>();
+<span class="pl-smi">Store</span>.<span class="pl-smi">Emails</span>.<span class="pl-c1">find</span>().<span class="pl-en">filter</span>(<span class="pl-k">function</span>(<span class="pl-smi">record</span>){
+  <span class="pl-k">if</span>( nowTime <span class="pl-k">-</span> <span class="pl-smi">record</span>.<span class="pl-smi">time</span> <span class="pl-k">&gt;=</span> <span class="pl-c1">2678400000</span>) <span class="pl-c">// 31 days</span>
+    <span class="pl-k">return</span> <span class="pl-c1">true</span>; <span class="pl-c">// we want to keep this record for next method i.e: remove</span>
+})
+.<span class="pl-en">remove</span>() <span class="pl-c">// remove the ones we filtered</span>
+.<span class="pl-en">then</span>(<span class="pl-k">function</span>(){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>You do not have any emails older than a month.<span class="pl-pds">'</span></span>);
+});</pre></div>
+
+<h3>
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Resources</h3>
+
+<p>For further reading and a deeper look into how to use ChotaDB, please read <a href="https://github.com/moinism/chotadb/wiki">API docs</a>.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/moinism/chotadb">Chotadb</a> is maintained by <a href="https://github.com/moinism">moinism</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
