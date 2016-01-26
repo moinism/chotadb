@@ -108,7 +108,8 @@
     } else if( Array.isArray(search) && Array.isArray(record) ) {// for ['PHP','Perl'] = ['PHP','Python','Perl'] like comparison
       return record.containsArray(search);
     } else if ( typeof search === 'object' && !isNaN(record) ) {
-      return ( record < search.$lt || record > search.$gt );
+      return ( record < search.$lt || record <= search.$lte ||
+        record > search.$gt || record >= search.$gte );
     } else
       return false;
   }

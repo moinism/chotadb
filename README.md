@@ -118,11 +118,87 @@ DB.Users.insert({
 });
 ````
 
-It is completely fine and won't produce any errors.
+It is completely fine and won't produce any errors. All the data is encoded to JSON and then stored in `localStorage`.
 
 ### Accessing
 
-All the data will be returned as `array` of `objects`. Like:
+Similar to Mongo's cursor, ChotaDB creates a set of data for operations. Every method called on a collection can access and modify that set.
+
+For example, current data set in a collection named `guys` looks like this:
+
+```javascript
+[{
+  _id: 1,
+  name: "John”,
+  age: 16
+},{
+  _id: 2,
+  name: "Doe",
+  age: 18
+}
+},{
+  _id: 3,
+  name: "Smith",
+  age: 22
+}]
+```
+
+And we perform a `find` on it to search for all the guys who are 18 years of age or older:
+```javascript
+DB.guys.find({
+  age: {
+    $gte: 18
+  }
+});
+```
+
+Data set would become:
+
+```javascript
+[{
+  _id: 2,
+  name: "Doe",
+  age: 18
+}
+},{
+  _id: 3,
+  name: "Smith",
+  age: 22
+}]
+```
+
+So all the operations performed will affect this set only. Let's say we update it and add a field name `isAdult` to all those.
+
+```javascript
+DB.guys.find({
+  age: {
+    $gte: 18
+  }
+}).update({
+  isAdult: true
+});
+```
+
+Current data set would something like:
+
+```javascript
+[{
+  _id: 2,
+  name: "Doe",
+  age: 18,
+  isAdult: true
+}
+},{
+  _id: 3,
+  name: "Smith",
+  age: 22,
+  isAdult: true
+}]
+```
+
+All the methods on a collection would perform operation on data and return the collection itself except `get` and `count` which return the current data set and number of records in it, respectively.
+
+All the data will be returned as an `array` of `objects`. Like:
 
 ````
 [object, object, ..., object]
@@ -141,7 +217,7 @@ ChotaDB supports a set of that you can subscribe to.
   * `removed` : When a record is removed from a collection
   * `dropped` : When a collection is dropped/deleted
 
-More details about events can be read on API site.
+More details about events can be read on [API wiki site](https://github.com/moinism/chotadb/wiki).
 
 You can use the `on` method on `ChotaDB` instance to subscribe to any event.
 
@@ -204,7 +280,7 @@ For other web, Cordova & Chrome based projects simply <a href="https://raw.githu
 
 ### Usage
 
-Below is an quick overview of what can be done with ChotaDB. For more details, please [read API docs](https://chotadb.moin.im/API/).
+Below is an quick overview of what can be done with ChotaDB. For more details, please [read API docs](https://github.com/moinism/chotadb/wiki).
 
 Start with creating an instance of `ChotaDB`:
 
