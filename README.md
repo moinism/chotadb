@@ -418,4 +418,4 @@ This library is still not complete and lacks a few things.
 
 ### Resources
 
-For further reading and a deeper look into how to use ChotaDB, please read [API docs](https://chotadb.moin.im/).
+For further reading and a deeper look into how to use ChotaDB, please read [API docs](https://github.com/moinism/chotadb/wiki).
