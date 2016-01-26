@@ -217,7 +217,7 @@ ChotaDB supports a set of that you can subscribe to.
   * `removed` : When a record is removed from a collection
   * `dropped` : When a collection is dropped/deleted
 
-More details about events can be read on [API wiki site](https://github.com/moinism/chotadb/wiki).
+More details about events can be read on [API wiki site](https://github.com/moinism/chotadb/wiki/Events).
 
 You can use the `on` method on `ChotaDB` instance to subscribe to any event.
 
