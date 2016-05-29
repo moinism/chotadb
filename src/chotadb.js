@@ -3,7 +3,6 @@
   "use strict";
 
   var _meta     = {}, // to hold global meta
-      _opts     = {}, // config object passed to constructor
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
       _adoptor  = null, // storage adoptor
       _SEPERATOR = '/',
@@ -14,7 +13,80 @@
         inserted: [],
         updated:  [],
         removed:  []
+      },
+      _chotaObj = { // to be returned
+        ANY: Infinity,
+        SORT: {
+          ASC: 1,
+          DSC: -1
+        },
+        create:        _createCollection,
+        drop:          _dropCollection,
+        each:          _collectionIterator,
+        hasCollection: _isCollection,
+        match:         RegExp,
+        on:            _on,
+        repair:        _repairDB,
+        select:        _accessCollection,
+
+          gt:  function (n) { return {$gt:  n}; },
+          gte: function (n) { return {$gte: n}; },
+          lt:  function (n) { return {$lt:  n}; },
+          lte: function (n) { return {$lte: n}; },
+          ne:  function (n) { return {$ne:  n}; }
+      },
+      _getData      = null,
+      _setData      = null,
+      _removeData   = null,
+      _dataResolver = {
+        parse:     JSON.parse,
+        stringify: JSON.stringify
       };
+
+      function _initData () {
+          if( !_storage.getItem( _resolveName('Meta') ) ) {
+              _init(
+                _setData(_resolveName('Meta'), {})
+              );
+          } else {
+            _init(
+              _getData(_resolveName('Meta'))
+            );
+          }
+      }
+
+      function _initSorage (env) {
+        _storage = env;
+
+          _getData = function (colName) {
+            return _dataResolver.parse( _storage.getItem(colName) );
+          };
+
+          _setData = function (colName, data) {
+            var _temp = _dataResolver.stringify( data );
+            try {
+              _storage.setItem( colName, _temp );
+            } catch(e) {
+              _trigger('error', {
+                code: 3,
+                reason: 'Unable to store data.'
+              });
+            }
+            return _dataResolver.parse( _temp ); // to clear out undefined-as-value records
+          };
+
+          _removeData = function (colName) {
+            _storage.removeItem( colName );
+          };
+
+        _initData();
+      }
+
+    var _chota  = function() { // constructor
+      _initSorage( _adoptor );
+      return _chotaObj;
+    };
+
 
   /* polyfills & custom utility methods */
 
@@ -118,7 +190,7 @@
       return (!Array.isArray(record) && search.indexOf(record) > -1) || // for any of ['PHP','Python','Perl'] matches 'PHP' comparison. $in
       (Array.isArray(record) && record.containsArray(search)); // for ['PHP', 'Perl'] part of ['PHP','Python','Perl'] like comparison
     } else if ( search !== null && typeof search === 'object' ) {  // comparison operators
-      return ( (search.exec !== undefined && search.exec(record) !== null) || // RegExp
+      return ( (search.exec && search.exec(record) !== null) || // RegExp
       (search.$ne && record !== search.$ne) ||
       record < search.$lt || record <= search.$lte ||
       record > search.$gt || record >= search.$gte );
@@ -138,8 +210,9 @@
 
   function _repairDB () {
     _collectionIterator(function(colName) {
-      if(_getData( _resolveName(colName, 'Data') ) === null)
+      if(_getData( _resolveName(colName, 'Data') ) === null) {
         _dropCollection(colName);
+      }
     });
 
     return _chotaObj;
@@ -161,8 +234,9 @@
 
   function _createCollection (name) {
 
-    if(!name)
+    if(!name) {
       return _chotaObj;
+    }
 
     if( _isCollection(name) && !_chotaObj.hasOwnProperty(name) ) {
       return new ColCTRL(name);
@@ -258,10 +332,11 @@
 
     // slightly modified version of: http://stackoverflow.com/a/1129270/1227747
     return data.sort(function (a,b) {
-      if (a[options.key] < b[options.key])
+      if (a[options.key] < b[options.key]) {
         return -1 * options.type;
-      if (a[options.key] > b[options.key])
+      } if (a[options.key] > b[options.key]) {
         return 1 * options.type;
+      }
       return 0;
     });
 
@@ -307,7 +382,9 @@
   }
 
   function _collectionIterator (fn) {
-    if(!fn) return _chotaObj;
+    if(!fn) {
+      return _chotaObj;
+    }
 
     for (var _d in _meta)
       fn.call( new ColCTRL(_d), _d );
@@ -709,79 +786,6 @@
     return _collection;
   }
 
-  var _getData    = null,
-    _setData      = null,
-    _removeData   = null,
-    _dataResolver = {
-      parse:     JSON.parse,
-      stringify: JSON.stringify
-    };
-
-  function _initSorage (env) {
-    _storage = env;
-
-      _getData = function (colName) {
-        return _dataResolver.parse( _storage.getItem(colName) );
-      };
-
-      _setData = function (colName, data) {
-        var _temp = _dataResolver.stringify( data );
-        try {
-          _storage.setItem( colName, _temp );
-        } catch(e) {
-          _trigger('error', {
-            code: 3,
-            reason: 'Unable to store data.'
-          });
-        }
-        return _dataResolver.parse( _temp ); // to clear out undefined-as-value records
-      };
-
-      _removeData = function (colName) {
-        _storage.removeItem( colName );
-      };
-
-    _initData();
-  }
-
-  function _initData () {
-    if( !_storage.getItem( _resolveName('Meta') ) ) {
-        _init(
-          _setData(_resolveName('Meta'), {})
-        );
-    } else {
-      _init(
-        _getData(_resolveName('Meta'))
-      );
-    }
-  }
-
-  var _chotaObj = { // to be returned
-    ANY: Infinity,
-    SORT: {
-      ASC: 1,
-      DSC: -1
-    },
-    create:        _createCollection,
-    drop:          _dropCollection,
-    each:          _collectionIterator,
-    hasCollection: _isCollection,
-    match:         RegExp,
-    on:            _on,
-    repair:        _repairDB,
-    select:        _accessCollection,
-
-    gt:  function (n) { return {$gt:  n}; },
-    gte: function (n) { return {$gte: n}; },
-    lt:  function (n) { return {$lt:  n}; },
-    lte: function (n) { return {$lte: n}; },
-    ne:  function (n) { return {$ne:  n}; }
-  },
-  _chota    = function(opts) { // constructor
-    opts = opts || {}; // not using it. just future-proofing
-    _initSorage( _adoptor );
-    return _chotaObj;
-  };
 
   // NodeJS support
   if(typeof module === 'object' && typeof module.exports === 'object') {
