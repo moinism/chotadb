@@ -5,6 +5,7 @@
   var _meta     = {}, // to hold global meta
       _opts     = {}, // config object passed to constructor
       _storage  = null, // localStorage or chrome.storage.* in case of extension/app
+      _adoptor  = null, // storage adoptor
       _SEPERATOR = '/',
       _events   = { // events and callback store
         error:    [],
@@ -97,12 +98,14 @@
   }
 
   function _trigger (event, data) {
+    data = data || {};
     _events[event].forEach(function (evt) {
       evt(data);
     });
   }
 
   function _match (search, record) {
+
     if( search == record ) {
       return true;
     }
@@ -111,24 +114,22 @@
       return ( typeof record === 'string' &&
         search.toLowerCase() == record.toLowerCase()) ||
       (Array.isArray(record) && record.indexOf(search) > -1); // for 'PHP' in ['PHP','Python','Perl'] like comparison
-    } else if ( typeof search === 'object' ) {  // comparison operators
+    } else if( Array.isArray(search) ) {
+      return (!Array.isArray(record) && search.indexOf(record) > -1) || // for any of ['PHP','Python','Perl'] matches 'PHP' comparison. $in
+      (Array.isArray(record) && record.containsArray(search)); // for ['PHP', 'Perl'] part of ['PHP','Python','Perl'] like comparison
+    } else if ( search !== null && typeof search === 'object' ) {  // comparison operators
       return ( (search.exec !== undefined && search.exec(record) !== null) || // RegExp
       (search.$ne && record !== search.$ne) ||
       record < search.$lt || record <= search.$lte ||
       record > search.$gt || record >= search.$gte );
-    } else if( Array.isArray(search) ) {
-      return (!Array.isArray(record) && search.indexOf(record) > -1) || // for any of ['PHP','Python','Perl'] matches 'PHP' comparison. $in
-      (Array.isArray(record) && record.containsArray(search)); // for ['PHP', 'Perl'] part of ['PHP','Python','Perl'] like comparison
-    } else
+    } else {
       return false;
+    }
 
   }
 
   function _count (target) {
-    if(Array.isArray(target) || typeof target == 'string')
-      return target.length;
-    else if(typeof target === 'object')
-      return Object.keys(target).length;
+    return target.length || Object.keys(target).length;
   }
 
   function _isCollection (name) {
@@ -220,10 +221,10 @@
 
      data.forEach(function(record) {
 
-        if( record[key] !== undefined && _has[record[key]] === undefined ) {
-          _has[record[key]] = 1;
-          _ret.push(record);
-        }
+      if( record[key] !== undefined && _has[record[key]] === undefined ) {
+        _has[record[key]] = 1;
+        _ret.push(record);
+      }
 
      });
 
@@ -266,6 +267,7 @@
 
   }
 
+  // Apply filtering options to passed data
   function _applyOpts (data, options) {
 
     // no options, nothing to apply
@@ -273,18 +275,23 @@
       !options ||
       typeof options !== 'object' ||
       options === null
-    )
+    ) {
       return data;
+    }
 
-    if(options.sort || options.orderBy)
-        data = _sort(data, options.sort || options.orderBy);
-
-    if(options.unique)
+    if(options.unique) {
       data = _getUnique(data, options.unique);
+    }
 
-    if(options.skip && options.skip > 0)
-      if(options.limit && options.limit > 0)
+    if(options.sort || options.orderBy) {
+      data = _sort(data, options.sort || options.orderBy);
+    }
+
+    if(options.skip && options.skip > 0) {
+      if(options.limit && options.limit > 0) {
         options.limit += options.skip;
+      }
+    }
 
     return data.slice(options.skip, options.limit);
   }
@@ -300,8 +307,7 @@
   }
 
   function _collectionIterator (fn) {
-    if(!fn)
-      return _chotaObj;
+    if(!fn) return _chotaObj;
 
     for (var _d in _meta)
       fn.call( new ColCTRL(_d), _d );
@@ -457,24 +463,22 @@
         return this;
       },
       bulkInsert: function(dataArray) {
-        if( Array.isArray(dataArray) )
+        if( Array.isArray(dataArray) ) {
           dataArray.forEach(this.insert);
-        else
+        } else {
           _trigger('error', {
             reason: "bulkInsert expects an array, '" + typeof dataArray + "' was given instead."
           });
-
+        }
         return this;
       },
       replicateTo: function(collection) {
-        if(typeof collection === 'string')
-          collection = new ColCTRL(collection);
+        collection = typeof collection === 'string' ? new ColCTRL(collection) : collection;
         collection.bulkInsert( this.all.get() );
         return this;
       },
       replicateFrom: function(collection) {
-        if(typeof collection === 'string')
-          collection = new ColCTRL(collection);
+        collection = typeof collection === 'string' ? new ColCTRL(collection) : collection;
         this.bulkInsert( collection.all.get() );
         return this;
       },
@@ -542,11 +546,36 @@
         }
       },
       join: function (collection, search, options) {
-        if(typeof collection === 'string')
-          collection = new ColCTRL(collection);
+
+        collection = typeof collection === 'string' ? new ColCTRL(collection) : collection;
 
         collection.find(search, options).each(function (record) {
           _c.push(record);
+        });
+
+        return this;
+      },
+      only: function (keys) {
+        if(!keys || keys.length === 0) return this;
+
+        if(typeof keys === 'string'){
+          keys = [keys];
+        }
+
+        var _temp = _c,
+            _cRec = {};
+        _c = [];
+
+        _temp.forEach(function (record) {
+          _cRec = {};
+          for (var _k in record) {
+            if (record.hasOwnProperty(_k) &&
+                (keys.indexOf(_k) > -1 || _k == '_id')
+              ) {
+              _cRec[_k] = record[_k];
+            }
+          }
+          _c.push(_cRec);
         });
 
         return this;
@@ -601,15 +630,15 @@
         return this.find({
           _id: id
         },{
-          limit: 1
+          limit: id.length
         });
 
       },
-      findOne: function(search) {
+      findOne: function(search, opts) {
 
-        return this.find(search,{
-          limit: 1
-        });
+        opts = opts || {};
+        opts.limit = 1;
+        return this.find(search, opts);
 
       },
       each: function(fn) {
@@ -716,7 +745,7 @@
   }
 
   function _initData () {
-    if( _storage.getItem( _resolveName('Meta') ) === undefined ) {
+    if( !_storage.getItem( _resolveName('Meta') ) ) {
         _init(
           _setData(_resolveName('Meta'), {})
         );
@@ -733,14 +762,14 @@
       ASC: 1,
       DSC: -1
     },
-    create: _createCollection,
-    drop: _dropCollection,
-    each: _collectionIterator,
+    create:        _createCollection,
+    drop:          _dropCollection,
+    each:          _collectionIterator,
     hasCollection: _isCollection,
-    match: RegExp,
-    on: _on,
-    repair: _repairDB,
-    select: _accessCollection,
+    match:         RegExp,
+    on:            _on,
+    repair:        _repairDB,
+    select:        _accessCollection,
 
     gt:  function (n) { return {$gt:  n}; },
     gte: function (n) { return {$gte: n}; },
@@ -750,34 +779,28 @@
   },
   _chota    = function(opts) { // constructor
     opts = opts || {}; // not using it. just future-proofing
+    _initSorage( _adoptor );
     return _chotaObj;
   };
 
   // NodeJS support
   if(typeof module === 'object' && typeof module.exports === 'object') {
     _SEPERATOR = '-';
-    var _s = require('node-persist');
-    _s.initSync({
+    _adoptor = require('node-persist');
+    _adoptor.initSync({
       dir:       process.env.PWD + '/ChotaData',
       stringify: function(d) { return d; },
       parse:     function(d) { return d; }
     });
-    _initSorage( _s );
     module.exports = _chota;
-    _s = null;
   } else if (_global.chrome && chrome.runtime && chrome.runtime.id !== undefined){ // For Chrome extension envoirnment. : http://stackoverflow.com/a/22563123/1227747
 
-    // _dataResolver = {
-    //   stringify: function(d) { return d; },
-    //   parse: function(d) { return d; }
-    // };
-
-    _initSorage( _global.localStorage );
+    _adoptor = _global.localStorage;
     // expose to window
     _global.ChotaDB = _chota;
 
   } else if( _global.localStorage ) {
-    _initSorage( _global.localStorage );
+    _adoptor = _global.localStorage;
     // expose to window
     _global.ChotaDB = _chota;
 

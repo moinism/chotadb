@@ -10,7 +10,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      all: ['src/*.js']
+      all: ['src/chotadb.js']
     },
     uglify: {
       options: {
