@@ -158,6 +158,29 @@
    return a;
  };
 
+ // Object.assign pollyfill: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
+  if (typeof Object.assign != 'function') {
+    Object.assign = function(target) {
+
+      if (target == null) {
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+
+      target = Object(target);
+      for (var index = 1; index < arguments.length; index++) {
+        var source = arguments[index];
+        if (source != null) {
+          for (var key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+      }
+      return target;
+    };
+  }
+
   /* End polyfills & custom utility methods */
 
   function _resolveName (colName, type) {
@@ -238,7 +261,7 @@
       return _chotaObj;
     }
 
-    if( _isCollection(name) && !_chotaObj.hasOwnProperty(name) ) {
+    if( _isCollection(name) ) {
       return new ColCTRL(name);
     } else if (_chotaObj.hasOwnProperty(name)) {
       _trigger('error', {
@@ -547,6 +570,17 @@
             reason: "bulkInsert expects an array, '" + typeof dataArray + "' was given instead."
           });
         }
+        return this;
+      },
+      updateOrInsert: function (find, data) {
+
+        if(this.find(find).count() > 0) {
+          this.update(data);
+        } else {
+          Object.assign(data, find); // merge find object to data.
+          this.insert(data);
+        }
+
         return this;
       },
       replicateTo: function(collection) {
